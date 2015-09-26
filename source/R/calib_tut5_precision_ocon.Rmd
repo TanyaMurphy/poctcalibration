@@ -1,0 +1,225 @@
+---
+title: "Concentration estimation and the precision profile"
+output:
+  html_document:
+    toc: true
+
+bibliography: "../../Literature/library.bib"
+---
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
+  <li><a href="calib_tut5_precision_background.html">Background</a></li>
+  <li><a href="calib_tut5_precision_ocon.html">O'Connell's ELISA</a></li>
+  <li><a href="calib_tut5_precision_elisa.html">R's ELISA{gtools}</a></li>
+</ul>
+<br>
+
+
+## Overview
+
+```{r prep, include=FALSE}
+# Load packages and our functions
+# Plot formatting
+source("AMgraph.R")
+# Our curve functions
+source("AMfunctions.R")
+# Data set tools
+require(reshape2)
+require(plyr)
+require(dplyr) 
+
+# special regression packages
+require(minpack.lm)
+
+# When working interactively (i.e. not calling this file from another
+# function e.g. 'Knit' button or render() in outside script), set working
+# directory to the location of this file. This way you will be working from
+# the same perspective as those outside functions and paths will work
+# either way.
+# getwd()
+# setwd("./source/R/calibration/tut5_precision")
+
+data.path <- "../data" 
+
+options(width=90, scipen = 4, show.signif.stars = FALSE)
+```
+
+*move background material to background tab*
+
+In clinical use, one observes the measured response from a test procedure and relies on the inverse model to predict the concentration of analyte in the patient's sample. If we want to include a margin of error with this point estimate---and we do advocate making this available to users whether or not it is included in default summary output---an error model for the inverse function is needed. As we saw in the previous tutorial, this is a challenging part of calibration when the model in nonlinear and has heterogenoeous errors. 
+
+<!---
+Covered in previous
+The error model for the inverse function quantifies the uncertainty in the model as the standard deviation for *concentration* ($x$) at each response, whereas the in original calibration curve, the error model was in terms of response ($y$). 
+--->
+
+The approach suggested by the last section of the [curve-fitting tutorial](calib_tut4_curve_ocon.html#the-inverse-function-and-error-model) is a numerical approach to estimating the concentration and its precision statistics rather than analytical. By creating a grid of finely spaced results for the inverse model, we can get predictions for a single new observation or precision statistics for a range of concentrations. A popular statistic is the coefficient of variation (%CV). A precision profile is a plot of CV over a range of concentrations. (We could also calculate some measures of the Analytical Measurement Range [e.g. LoD, LoQ], but regulatory institutions recommend doing this as part of the reliability studies.)   
+
+## Concentration prediction
+
+Let's see how we can return a single concentration estimate from a hypothetical patient sample. First, the point estimate is calculated from the estimated coefficients from the calibration curve and its inverse function. Next, the point estimate and its standard deviation is interpolated from the results grid saved from the last tutorial. From the standard deviation estimate for the predicted concentration, an expression of the uncertainty of the estimate can be calculated such as a <abbr title="Prediction Intervals represent the uncertainty of predicting the value of a single future observation or a fixed number of multiple future observations">prediction interval</abbr> ^1^. We wrapped the steps to estimate a new concentration plus interval using the numerical method (i.e. with the grid) in a function, [`predictConc.4pl`](AMfunctions.html#predictconc-4pl).
+
+```{r predict-conc}
+# ------------ Point concentration from model ------------------
+# Retrieve the nlsLM model from previous tutorial
+load("ocon.model.theta.2.4.RData")
+# Extract model info (not within parent list)
+ocon.model <- ocon.model.theta.2.4[[2]]
+# Extract original data set (as data frame, not within a list)
+ocon <- ocon.model.theta.2.4[[1]]
+# The coefficients
+coef(ocon.model)
+# We loaded the inverse 4pl function in the preamble. We can use it to calculate a
+# concentrations from a (hypothetically) observed response
+Inv.4pl(0.18
+       , small.x.asymp = coef(ocon.model)[1]
+       , inf.x.asymp = coef(ocon.model)[2]
+       , inflec = coef(ocon.model)[3]
+       , hill = coef(ocon.model)[4]
+       )
+
+# ---- Point concentration and uncertainty interval from grid --------
+# Import the inverse model grid
+load("ocon.inv.theta.2.4.RData")
+ocon.grid <- ocon.inv.theta.2.4
+#str(ocon.grid)
+ocon.grid$inv.grid[40:50, ]
+# Use 
+predictConc.4pl(ocon.grid, y.new = 0.18)
+```
+
+The point estimate from the inverse function is 125.2459 and from the grid is 125.2941. Notice that they are not identical. The grid contains discrete values so the new value had to be interpolated from the two closest values. The difference, however, is tiny compared to the uncertainty in the model. Hence we would report that for an observed response of 0.18, our model predicts a concentration of 125 units with a 95% prediction interval of 63 to 188 units. Obtaining such an interval using the analytic method would not have been a trivial calculation. 
+
+## Precision profile
+
+Now we derive the precision profile as a descriptor of precision over the concentration range of interest. Precision---or random error, depending on how you look at it---can be predicted for the whole range of values covered by the original calibration data by interpolating, or smoothing, between the predicted CV values. (Remember: we use the CV rather than the SD directly because the CV is scaled to the concentration.) Given the standard deviation of concentration, $x$, the coefficient of variation equals $SD(x)/x$, which are quantities in the grid. While the measure of variation or level of acceptable error may vary according to the standards of your industry, conventionally, a CV of 20% or less is considered acceptable. Let's construct a precision profile plot of the estimated CV against the natural log of the nominal concentration and see which range of concentrations has an estimated CV of 20% or less.  
+
+```{r prec-prof}
+# (this function could be moved to the functions page, but would need some
+# more general arguments to use it for other assays)
+precisionProfile <- function(sdXhat.object
+                             , acceptable.cv = 20){
+    require(ggplot2)
+    # sdXhat.object <- ocon.grid
+    # Rename grid
+    d <- unique(sdXhat.object$inv.grid)
+    # x where cv is smallest
+    x.min.cv <- d$xp[d$sd.xp / d$xp == min(d$sd.xp / d$xp)]
+    # %CV
+    d$pcv <- 100 * d$sd.xp / d$xp
+    if(min(d$pcv) < 20){
+        # ---- Find x values where CV crosses 20% ---------
+        d$y.diff <- (d$pcv - 20)
+        # Get next y.diff
+        d$y.offset <- lead(d$y.diff)
+        # Get next xp
+        d$x.offset <- lead(d$xp)
+        # Intercept a for linear segments 
+        # where line xp = a + (delta xp)/(delta y.diff) * y.diff
+        d$a <- d$xp - d$y.diff*(d$x.offset - d$xp)/(d$y.offset - d$y.diff)
+        # Lower limit
+        # Segment closest on left to y.diff = 0
+        closest <- min(d$y.diff[d$xp < x.min.cv & d$y.diff >= 0])
+        # Corresponding x values
+        x.low <- d$a[d$y.diff == closest]
+        # Upper limit
+        # Segment closest on left to y.diff = 0
+        closest <- max(d$y.diff[d$xp > x.min.cv & d$y.diff <= 0])
+        # Corresponding x values
+        x.high <- d$a[d$y.diff == closest]
+        }
+    else{x.low <- NA
+         x.high <- NA
+         }
+    cat("Working range (CV<20%):", round(x.low, 0), "--", round(x.high, 0))
+    # ---- Precision profile plot --------
+    # Need to generalise scale limits and breaks
+    ggplot(d[d$pcv<60,], aes(y= pcv, x = xp)) + geom_line() + 
+    scale_y_continuous(limits=c(0, 60), expand = c(0, 0)) + 
+    scale_x_continuous(limits=c(2.7, 50000), expand = c(0, 0), 
+                       trans = "log", 
+                       breaks = c(3, 8, 23, 69, 206, 617, 1852, 5556, 16667, 50000)) +
+#geom_path(aes(x = m2.inv.grid$xp, y = m2.inv.grid$pcv.lcl), linetype = 3) +
+#   geom_path(aes(x = m2.inv.grid$xp, y = m2.inv.grid$pcv.ucl), linetype = 3) +
+    geom_hline(aes(yintercept = 20), colour="#BB0000", linetype = 2) + 
+    labs(title = "Precision profile: O'Connell data, theta = 2.4", 
+         x = "log (Concentration)", y = "CV (%)")
+
+}
+
+precisionProfile(ocon.grid)
+```
+
+**Working range and limits of quantification**
+
+Test developers are "responsible for determining the upper and lower limits of the measuring range for the methods and the precision of results at these limits" (NCCLS2004, p.2) We can obtain a rough estimate of the working range from the precision profile that is useful for guidance during development. Working range, limits of detection and quantification for licensing and user documentation, however, are determined using a more formal procedure described by regulatory agencies such as the CLSI.
+
+<!--
+
+
+## Recovery and interval coverage
+
+We can compare nominal concentration values with model estimates more formally.
+
+```{r predict-conc-all}
+# Return grid-derived values for all observed 'od' values in ocon dataset
+
+NewX <- function(data){
+    # data <- ocon
+    y.new1 <- data$od
+    x.new <- matrix(NA, nrow = length(y.new1), ncol = 6)
+    for(i in 1:length(y.new1)){
+        x <- predictConc.4pl(ocon.grid, y.new = y.new1[i])
+        x.new[i,] <- c(y.new1[i], unlist(x))
+        }
+    x.new <- as.data.frame(x.new)
+    names(x.new) <- c("y.new", "pred.conc", "low.ci", "up.ci", "low.pi", "up.pi")
+    x.pred <- cbind(data, x.new)
+    x.pred <- arrange(x.pred[, -4], conc, rep)
+    return(x.pred)
+}
+
+ocon.pred <- NewX(ocon)
+#print(ocon.pred, digits = 2)
+
+# Percent recovery
+# Removing zeros, cannot calculate percent (zero in denominator)
+# nyway, the errors are huge 
+p.rec <- with(ocon.pred[ocon.pred$conc > 0, ]
+              , 100*(conc - pred.conc) / conc )
+plot(ocon.pred$conc[ocon.pred$conc > 0], p.rec
+     , log = "x"
+     , xlab = "Nominal concentration (log)"
+     , ylab = "Revovery (%)")
+abline(h = 0, col = "red", lty = 2)
+
+# Confidence/prediction interval coverage
+# I wanted to look at whether or not the intervals captured the nominal concentration at least 95% of the time, but I don't know if this is the right
+# data to do it with---maybe it is only meaningful with a new data set
+# By eye, the PIs seem a little too conservative in the working range (and a little beyond), but not adequate for the extremes
+```
+
+```{r recovery, eval=FALSE, include=FALSE}
+# Retrieve the nlsLM model from previous tutorial
+load("../tut4_curve/ocon.model.theta.2.4.RData")
+# Extract original data set (as data frame, not within a list)
+ocon <- ocon.model.theta.2.4[[1]]
+# Extract model info (not within parent list)
+ocon.model <- ocon.model.theta.2.4[[2]]
+# We loaded the inverse 4pl function in the preamble. We can use it to back-calculate the
+# concentrations from the fitted responses
+coef(ocon.model)
+pred.conc <- Inv.4pl(ocon[, 3], coef(ocon.model)[1], coef(ocon.model)[2]
+        , coef(ocon.model)[3], coef(ocon.model)[4])
+cbind(ocon, pred.conc)
+```
+
+-->
+
+## Summary
+
+In this tutorial, we have used the estimates from the calibration curve to predict the concentration, and the uncertainty of the predictions, of hypothetical new observations. We will repeat and build upon these concepts and techniques in future tutorials. The ELISA{gtools} data set includes quality control samples, which provides an additional test of the methods. Therefore, the [ELISA concentration estimation and precision profile tutorial]() adds techniques to calculate 'recovery' and systematic errors.
+
+[1] Quoted from: <http://www.propharmagroup.com/blog/understanding-statistical-intervals-part-2-prediction-intervals>. Alternatively, see <http://www.itl.nist.gov/div898/handbook/pmd/section5/pmd521.htm>

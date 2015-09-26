@@ -1,0 +1,29 @@
+---
+title: "Project overview"
+bibliography: "../../Literature/library.bib"
+        
+---
+
+
+This website is the result of a collaboration between researchers from <a href="http://www.achiralabs.com/" target="_blank">Achira Labs</a> (Bangalore, India) and <a href="http://muhc.ca/" target="_blank">McGill University Health Centre</a> (MUHC, Montreal, Canada)---a project funded by <a href="http://www.grandchallenges.ca/grantee-stars/0002-02-02/" target="_blank">Grand Challenges Canada</a>.
+
+The larger goals of this project are to **review and clarify methods for the statistical characterisation (e.g. calibration, analytical validation) of new quantitative assays (pre-market) with a special focus on POCT**. 
+
+Specifically:
+
+- Develop the statistical model used to estimate sample concentration from an observed response---the calibration curve.  
+- Characterise a test's accuracy in terms of:  
+    - Reliability: the variation of the test within and across stipulated conditions;  
+    - Validity (or agreement): The extent of bias and random variation in the new test compared to a reference method.
+
+Collectively, we will refer to these as <a href="http://www.cdc.gov/genomics/gtesting/file/images/ACCE_wheel.gif" target="_blank">analytical validity</a>.
+
+**The application of these methods is illustrated in a set of [tutorials using R software](over_tutorials.html).** The literature on calibration curve-fitting and pre-clinical diagnostic test validation is synthesised in brief, narrative reviews (in development).
+
+A summary of the terminology can be found in the [glossary](extra_glossary.html).
+
+<br>
+<button type="button" class="btn"><a href="over_intro.html"> Next: Introduction &raquo;</a></button>
+<br>
+
+

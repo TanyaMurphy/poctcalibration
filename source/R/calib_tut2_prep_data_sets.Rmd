@@ -1,0 +1,232 @@
+---
+title: "Data Preparation"
+output:
+  html_document:
+    toc: true
+
+bibliography: "../../Literature/library.bib"
+---
+
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
+  <li><a href="calib_tut2_prep_background.html">Background</a></li>
+  <li class="active"><a href="calib_tut2_prep_data_sets.html">Data sets</a></li>
+  <li><a href="calib_tut2_prep_ocon.html">O'Connell's ELISA</a></li>
+  <li><a href="calib_tut2_prep_elisa.html">R's ELISA{gtools}</a></li>
+</ul>
+<br>
+
+## Calibration curve data sets
+
+Scientists have made immunoassay data sets available to the public, which helps us practice with realistic data. The data sets described here have often been used to illustrate concepts in the literature cited on this website.
+
+```{r prep-a, include=FALSE}
+# In case not already done, we load the needed packages
+# require(knitr)
+# Plot formatting
+source("AMgraph.R")
+# If you don't like our ggplot options, reset default
+# theme_set(original.ggplot2.style)
+
+# Package containing the ELISA data set
+require(gtools)
+require(nCal)
+require(nlme)
+
+# Data set tools
+require(reshape2)
+require(plyr)
+require(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
+require(scales)
+
+library(RColorBrewer)
+# Colour palette for plots
+# Blue gradient
+blues <- brewer.pal(6, "Blues")
+# Divergent colours
+div.col <- brewer.pal(7, "Spectral")
+#display.brewer.pal(7, "Spectral")
+
+# When working interactively (i.e. not calling this file from another function e.g. 'Knit'
+# button or render() in outside script), set working directory to the location of this
+# file. This way you will be working from the same perspective as those outside functions
+# and paths will work either way.
+# getwd()
+# setwd("./source/R/calibration/tut5_curve")
+# Some of these paths may seems redundant, but it's for the outside script reasons above
+data.path <- "../data" 
+
+# Some options are set in export script, but may be reset
+# Set width for easy reading (but may sometimes want wider for viewing wide tables)
+# options(width=90, scipen = 4, show.signif.stars = FALSE)
+```
+
+### O'Connell's ELISA data
+
+O'Connell, Belanger and Haaland [-@OConnell1993] include this ELISA data set in their article, "Calibration and assay development using the four-parameter logistic model". This single run includes 10 non-zero concentration standard samples in triplicate plus 2 blanks (also in triplicate). (We are not given any details about the analyte, however.)
+
+
+```{r ocon-entry, echo=FALSE, fig.width=12}
+# O'Connell's ELISA data
+ocon <- read.csv(file.path(data.path, "ocon.csv"), header = TRUE)
+
+# Or a more formally described structure:
+# str(ocon)
+ocon$conc2 <- ifelse(ocon$conc == 0, 0.8, ocon$conc)
+par(mfrow = c(1, 2), oma = c(0.5, 0.5, 2, 0))
+plot(ocon$conc2, ocon$od, log = "x", xaxt = 'n', pch = 21, bg = div.col[2],
+     ylab = "Response", xlab = "log(Concentration)")
+axis(1, at = c(1, 10, 100, 1000, 10000), 
+     labels = format( c(1, 10, 100, 1000, 10000), big.mark=",", scientific=FALSE))
+grid()
+axis.break(1, 1, brw = 0.01)
+plot(ocon$conc, ocon$od, pch = 21, bg = div.col[2], xaxt = 'n', 
+     ylab = "Response", xlab = "Concentration")
+axis(1, at = c(0, 10000, 20000, 30000, 40000, 50000), 
+     labels = format(c(0, 10000, 20000, 30000, 40000, 50000), 
+                     big.mark=",", scientific=FALSE))
+grid()
+title(main = "O'Connell's ELISA", outer = TRUE)
+par(mfrow = c(1, 1))
+```
+
+### R's ELISA{gtools} data set
+
+<!-- I think I came across it in one of the early texts--find it -->
+
+The <a href="http://www.rdocumentation.org/packages/gtools/functions/ELISA" target="_blank">ELISA{gtools}</a> provided with the R package, 'gtools', are:
+
+"Observed signals and (for some observations) nominal concentrations for samples that were aliquoted to multiple assay plates, which were read multiple times on multiple days." 
+
+Specifically, 4 plate-based assays (over 2 days) each include 7 standard concentrations (`Concentration`) plus 7 quality control (QC) samples at intermediate concentrations, in duplicate. The six patient samples per plate, also in duplicate, are less useful, however, since no 'right answer' is given; they will be dropped. The response, `Signal`, is optical density and it was read 3 times for each sample. To get a single response for each sample, we will average the `Signal` by plate and replicate; therefore, the original number of rows, 504, becomes 168 rows of independent samples in our examples. Hence, once signal triplicates are averaged and patient samples are dropped, the sample size by plate is 30---16 standard samples for curve-fitting and 14 QC samples for cross-validation.
+
+```{r elisa, echo=FALSE, fig.width=12}
+# ------------------------- ELISA -------------------------------------------
+data(ELISA)
+elr <- ELISA
+elr$rep <- rep(c(1, 2), times = nrow(elr)/2)
+elr2 <- group_by(elr, PlateDay, Description, Concentration, rep)
+# Collapse d4 to 1 line per group (using mean)
+elr3 <- summarise(elr2, od = mean(Signal))
+elr3$conc <- ifelse(elr3$Concentration == 0, 0.8, elr3$Concentration)
+elr3 <- elr3[(elr3$Description == "Standard" | elr3$Description == "BLANK") & 
+                 elr3$PlateDay == "Plate 1 (Day 1)", ]
+par(mfrow = c(1, 2), oma = c(0.5, 0.5, 2, 0))
+plot(elr3$conc, elr3$od, 
+     log = "x", pch = 21, bg = div.col[2],
+     ylab = "Response", xlab = "log(Concentration)")
+grid()
+axis.break(1, 1, brw = 0.01)
+plot(elr3$Concentration, elr3$od, pch = 21, bg = div.col[2], 
+     ylab = "Response", xlab = "Concentration")
+grid()
+title(main = "R's ELISA{gtools}, plate 1", outer = TRUE)
+par(mfrow = c(1, 1))
+```
+
+This data set, minus the QC samples, represents a typical immunoassay data collection. We will contrast this design that  with the O'Connell data, which contains standard samples in triplicate. In addition to the benefit of an additional set of replicates, the benefits of including concentrations that clearly approach the upper limit of the test will be demonstrated. Some strengths of this data set are its inclusion of quality control samples at concentrations other than the standards, which we will use for cross-validation, and multiple plates. For basic curve-fitting we will use one plate, but this design permits us to show how all four plates can contribute to the estimation of the Response-Error Relationship. 
+
+
+### Other R data sets
+
+For more practice, one may also want to analyse these other three immunoassay data sets from R packages:
+
+#### DNase{datasets}
+
+The `DNase` data set provided with the basic R distribution is "data obtained during development of an ELISA assay for the recombinant protein DNase in rat serum". There are  11 runs with 8 concentrations (`conc`) each, in duplicate, for a total sample size of n=176. The response, `density`, is optical density and it is already adjusted for the zero-calibrator (i.e. the data set does not include blanks or zero-calibrators). Concentration is in ng/mL. No other variables are provided. 
+    
+This is also a good example of typical calibration data set. It is used in examples over several R packages and textbooks (see its [R documentation](http://www.rdocumentation.org/packages/tpr/functions/dnase)), as well as in Zeng and Davidian [-@Zeng1997].
+
+
+```{r dnase, echo=FALSE, fig.width=12}
+# ------------------------- DNase -------------------------------------------
+data(DNase)
+dna <- DNase[DNase$Run == 1, ]
+par(mfrow = c(1, 2), oma = c(0.5, 0.5, 2, 0))
+plot(dna$conc, dna$density, 
+     log = "x", pch = 21, bg = div.col[2],
+     ylab = "Response", xlab = "log(Concentration)")
+grid()
+plot(dna$conc, dna$density, pch = 21, bg = div.col[2], 
+     ylab = "Response", xlab = "Concentration")
+grid()
+title(main = "DNase, run 1", outer = TRUE)
+par(mfrow = c(1, 1))
+```
+
+#### Relaxin{nlme}
+
+The `Relaxin` data set provided with the R package, `nlme`, comes with little additional information, but relaxin, generally, is a family of hormones found in mammals, including humans, and is involved in the reproductive system. The data set has 9 runs (`Run`) with 8 concentrations (`conc`), in triplicate except for the lowest concentration which only has a single sample; hence the total sample size is n=198. The response, cyclic AMP (`cAMP`), is a product of the reaction that can be detected by the signal reader. `cAMP` appears to be already adjusted for blank. No other variables are included.
+
+These data are used in Belanger *et al* [-@Belanger1996].
+
+These data provide opportunities to:
+
+- further explore the possible benefits of samples collected in triplicate;
+
+- compare methods for handling heteroscedasticity because here it is particularly severe.
+
+```{r relaxin, echo=FALSE, fig.width=12}
+# ------------------------- Relaxin -------------------------------------------
+data(Relaxin)
+rlx <- Relaxin[Relaxin$Run == 1, ]
+par(mfrow = c(1, 2), oma = c(0.5, 0.5, 2, 0))
+plot(rlx$conc, rlx$cAMP, 
+     log = "x", pch = 21, bg = div.col[2],
+     ylab = "Response", xlab = "log(Concentration)")
+grid()
+plot(rlx$conc, rlx$cAMP, pch = 21, bg = div.col[2], 
+     ylab = "Response", xlab = "Concentration")
+grid()
+title(main = "Relaxin{nlme}, run 1", outer = TRUE)
+par(mfrow = c(1, 1))
+```
+
+#### dat.QIL3{nCal}
+
+The `dat.QIL3` data set from the `nCal` package [@Fong2012a] includes immunoassay results for interleukin-3: 6 runs of 10 concentrations in duplicate for a total n=120. Response, `fi`, is fluorescence and it is already adjusted for the mean blank response. In this subset of the original data set, all the samples are standard samples. The concentration is stored in `expected_conc`---there is no need to calculate it from `dilution`. 
+
+Plate position, `well`, and microbead count, `beadct`, may be interesting explanatory variables for additional analyses. The curve's shape and range are similar to `DNase`, including the limitation that there is limited information near the upper limit of the test. One has the Fong article for comparison, including its use in a Bayesian analysis. 
+
+```{r il3, echo=FALSE, fig.width=12}
+# ------------------------- IL3 -------------------------------------------
+data(dat.QIL3)
+il3 <- dat.QIL3[dat.QIL3$assay_id == "LMX001", ]
+
+par(mfrow = c(1, 2), oma = c(0.5, 0.5, 2, 0))
+plot(il3$expected_conc, il3$fi, log = "x", xaxt = 'n', yaxt = 'n', pch = 21, 
+     bg = div.col[2],
+     ylab = "Response", xlab = "log(Concentration)")
+axis(1, at = c(1, 10, 100, 1000, 10000), 
+     labels = format( c(1, 10, 100, 1000, 10000), big.mark=",", scientific=FALSE))
+axis(2, at = c(0, 5000, 10000, 15000, 20000), 
+     labels = format( c(0, 5000, 10000, 15000, 20000), big.mark=",", scientific=FALSE))
+grid()
+axis.break(1, 1, brw = 0.01)
+plot(il3$expected_conc, il3$fi, pch = 21, bg = div.col[2], xaxt = 'n', yaxt = 'n',
+     ylab = "Response", xlab = "Concentration")
+axis(1, at = c(0, 2000, 4000, 6000, 8000, 10000), 
+     labels = format(c(0, 2000, 4000, 6000, 8000, 10000), 
+                     big.mark=",", scientific=FALSE))
+axis(2, at = c(0, 5000, 10000, 15000, 20000), 
+     labels = format( c(0, 5000, 10000, 15000, 20000), big.mark=",", scientific=FALSE))
+grid()
+title(main = "Fong's IL3, assay 'LMX001'", outer = TRUE)
+par(mfrow = c(1, 1))
+```
+
+
+Note: the above data sets are all plate-based assays. We hope to have an instructional POCT dataset soon. 
+
+<br>
+<button type="button" class="btn"><a href="calib_tut2_prep_ocon.html"> Next: Data preparation for O'Connell's ELISA &raquo;</a></button>
+<!--
+<button type="button" class="btn"><a href="tut2_prep/data_sets.html"> Tutorial: Data preparation &raquo;</a></button>
+-->
+<br>
+
+## References 
+
+

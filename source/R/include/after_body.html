@@ -1,0 +1,50 @@
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles from 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

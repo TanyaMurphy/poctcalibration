@@ -1,0 +1,190 @@
+---
+title: "Data Preparation"
+output:
+  html_document:
+    toc: true
+
+bibliography: "../../Literature/library.bib"
+---
+
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
+  <li><a href="calib_tut2_prep_background.html">Background</a></li>
+  <li><a href="calib_tut2_prep_data_sets.html">Data sets</a></li>
+  <li class="active"><a href="calib_tut2_prep_ocon.html">O'Connell's ELISA</a></li>
+  <li><a href="calib_tut2_prep_elisa.html">R's ELISA{gtools}</a></li>
+</ul>
+<br>
+
+Using O'Connell's ELISA data set introduced on the [previous page](calib_tut2_prep_data_sets.html), we prepare a **data.frame** for analysis.
+
+<!-- a suggestion from Suraj:
+"a prior objective of the data preparation could have been more elaborate and simple e.g., by juxtaposing the initial(raw data from ELISA) and final data (conc, mean, sd) before the tutorial is started"
+-->
+
+****  
+#### Learning objectives for this section:
+
+- Manual data entry.  
+- Data summarisation.
+- Transposing a data set from 'long' to 'wide' format (and vice versa).
+- Save a data set.
+
+****
+
+## Set up the R environment
+
+In each of the tutorials, we will set up the R environment (or workspace) needed to perform analyses (and control output formatting). If tutorials are run one after the other some commands may be redundant, but reloading packages and preferences will not create any problems. 
+
+```{r prep-b}
+# Load the needed packages (in case not already done)
+# recent versions of Rstudio load knitr as needed
+# require(knitr)
+
+# Plot formatting
+source("AMgraph.R")
+
+# Data set tools
+require(reshape2)
+require(plyr)
+require(dplyr) 
+require(grDevices)
+
+# When working interactively (i.e. not calling this file from another
+# function e.g. 'Knit' button or render() in outside script), set working
+# directory to the location of this file. This way you will be working from
+# the a common perspective---outside functions and paths will work either way.
+# getwd()
+# setwd("./source/R-new")
+
+# Set options: output width, when scientific notation is used (see options help),
+#              do not include statistical significance star indicators
+options(width=90, scipen = 4, show.signif.stars = FALSE)
+```
+
+## Data preparation
+
+Data may be entered manually or imported from many different file formats (native Rdata, comma-separated, tab-delimited, etc). 
+
+Data sets can be stored as lists or rectangular tables (data.frames in R).  Data.frames holding data that has some sort of repeating structure (groups, replicates) can be 'long' or 'wide'. A long data.frame will have all the response data in one long column the calibrator concentration, group and replicate labels in other columns.  
+
+
+### Manual data entry of O'Connell's ELISA data
+
+The following code shows how the O'Connell data may be entered manually in vector, or list, format then converted to a long data.frame. Later the long data.frame is converted to a wide one, which can be helpful for onscreen viewing or printing, or sharing data between R and other curve-fitting software such as GraphPad. 
+
+```{r ocon-entry}
+# O'Connell's ELISA data
+# Enter the 12 calibrator concentrations
+# Repeat sequence of known concentrations 3 times to correspond to 3 replicates
+conc <- rep(c(0, 0, 3, 8, 23, 69, 206, 617, 1852, 5556, 16667, 50000), 3)
+# Optical Density measurements
+od <- c(
+  # Replicate 1
+  0.100, 0.120, 0.120, 0.120, 0.130, 0.153, 0.195, 0.280, 0.433, 0.593,
+  0.823, 0.933,
+  
+  # Replicate 2
+  0.115, 0.110, 0.123, 0.118, 0.133, 0.160, 0.208, 0.305, 0.455, 0.668,
+  0.850, 1.078,
+  
+  # Replicate 3
+  0.118, 0.115, 0.108, 0.118, 0.158, 0.150, 0.218, 0.323, 0.490, 0.760,
+  0.973, 0.825)
+
+# Assign calibrator and replicate id just for easy identification
+rep <- rep(c(1, 2, 3), each = 12) 
+calib <- rep(c("B1", "B2", paste("S0", seq(1:9), sep = ""), "S10"), 3) 
+
+# Combine vectors into a data.frame, 'ocon'. 
+# We will call this data.frame repeatedly in the steps below
+ocon <- data.frame(calib, conc, rep, od)
+
+# Print 1st 6 lines to console to check structure
+head(ocon)
+# Or a more formally described structure:
+str(ocon)
+
+# Save data as a .csv
+# File path: "../" = go up one directory
+# write.csv(ocon, file = "../data/ocon.csv", row.names = FALSE, quote = FALSE)
+```
+
+#### Numerical summaries
+
+Let's summarise the data by concentration to get a 'feel' for our data set and check for errors:
+
+```{r ocon-mean}
+# Mean response for concentration = 3
+# Notice how the full data.frame$variable is needed each time a variable is named 
+# The argument na.rm=TRUE tells R to drop any missing observations
+mean(ocon$od[ocon$conc == 3], na.rm = TRUE)
+sd(ocon$od[ocon$conc == 3], na.rm = TRUE)
+
+# Mean by calibrator concentration in one shot
+ddply(ocon, .(conc), summarise, 
+      Mean = mean(od, na.rm = TRUE),
+      SD   = sd(od, na.rm = TRUE))
+```
+
+
+Let's examine minima and maxima for each concentration to check for extreme values:
+
+```{r ocon-minmax}
+oconMinMax <- ddply(ocon, .(conc), summarise,
+              n = length(na.omit(od)), 
+              Min = min(od, na.rm = TRUE), 
+              Max = max(od, na.rm = TRUE))
+
+oconMinMax
+```
+
+No glaring errors. We'll examine the structure in more detail in the next 2 tutorials. 
+
+## Transposing a data.frame
+
+A wide, rather than long, format is nice for viewing and comparing calibrator replicates. Also, conversion between long and wide formats would be useful if one had to share data between R and other software such as GraphPad or a spreadsheet.
+
+**Prepare data set for GraphPad-type software:** 
+
+```{r ocon-reshape}
+# Reshape (aka transpose) long data set into wide format 
+oconWide <- dcast(ocon, calib + conc ~ rep , value.var = "od")
+
+# Fix the variable names
+names(oconWide)[3:5]  <- paste("rep", names(oconWide[3:5]), sep = "")
+# In this format, several runs could fit on one page. 
+oconWide
+
+# Limit the data to non-zeros and export it for later use in GraphPad
+# write.csv(oconWide[3:12, 2:5], file.path(data.path, "ocon_GraphPad.csv"), quote = FALSE, 
+#          row.names = FALSE, na = " ")
+
+```
+
+**Convert a wide data.frame to long format:**
+
+```{r ocon-w-to-l}
+oconLong <- melt(oconWide, id = c("calib", "conc"))
+head(oconLong, 15)
+
+# Rename 'variable' to 'rep' and 'value' column to 'od'
+names(oconLong)[c(2, 3)] <- c('rep', 'od') 
+str(oconLong)
+```
+
+[Quick-R](http://www.statmethods.net/) is a great resource for more details about [entering data](http://www.statmethods.net/input/index.html) and [R data types](http://www.statmethods.net/input/datatypes.html).
+
+We have what we need to proceed to [characterising the  variance of the O'Connell data](calib_tut3_variance_ocon.html). For more practice with data entry and wrangling, see [data preparation for R's ELISA data set](calib_tut2_prep_elisa.html).
+
+<br>
+<button type="button" class="btn"><a href="calib_tut3_variance_background.html"> Next: Characterising variance background &raquo;</a></button>
+<!--
+<button type="button" class="btn"><a href="elisa.html"> Tutorial: Data preparation for R's ELISA &raquo;</a></button>
+-->
+<br>
+
+
+

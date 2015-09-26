@@ -1,0 +1,146 @@
+---
+title: "Characterising Variance"
+bibliography: "../../Literature/library.bib"
+---  
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
+  <li><a href="calib_tut3_variance_background.html">Background</a></li>
+  <li><a href="calib_tut3_variance_ocon.html">O'Connell's ELISA</a></li>
+  <li><a href="calib_tut3_variance_elisa.html">R's ELISA{gtools}</a></li>
+</ul>
+<br>
+
+## Modeling the variability in the O'Connell ELISA data
+
+Before modeling the shape of the calibration curve, we will estimate the response-error relationship (RER). From what is generally known about ELISA data and given the descriptive analysis of the O'Connell data so far, we can be reasonably sure that these data are heteroscedastic. The variability of the data seems to increase with increasing response. Ignoring the heteroscedasticity may result in the regression estimates being biased. Importantly, estimates of the working range of the immunoassay, estimates of uncertainty around the calibration curve or around the concentration estimates for new samples will be biased. Thus we will arrive at a final calibration model through a multi-step approach beginning with the estimation of the RER.
+
+<!--- prep R environment --->
+
+```{r ocon-prep, include=FALSE}
+# Load the needed packages (in case not already done)
+# require(knitr)
+
+# Data set tools
+require(reshape2)
+require(plyr)
+require(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
+require(nlme)
+require(investr)
+ 
+# Plot formatting
+source("AMgraph.R")
+
+# Optional:
+# Divergent colours
+div.col <- brewer.pal(7, "Spectral")
+#display.brewer.pal(7, "Spectral")
+
+# When working interactively (i.e. not calling this file from another
+# function e.g. 'Knit' button or render() in outside script), set working
+# directory to the location of this file. This way you will be working from
+# the same perspective as those outside functions and paths will work
+# either way.
+# getwd()
+# setwd("./source/R/calibration/tut3_variance")
+
+options(width=90, scipen = 7, show.signif.stars = FALSE)
+```
+
+**Import and review the structure of our `ocon` data set:**
+
+```{r ocon-entry}
+# ------ Import ocon.csv ---
+# An alternative syntax for file paths (especially useful when paths are long)
+data.path <- "../data" 
+ocon <- read.csv(file.path(data.path, "ocon.csv"), header = TRUE, stringsAsFactors = FALSE)
+# Check 
+str(ocon)
+```
+
+Based on general experience with ELISA data, it has been recommended to assume the response (od) follows a normal distribution, $N(mean_i, var_i)$, at the $i^{th}$ concentration level [@OConnell1993].
+
+**Summarise the data into a table of means and variance by concentration:** 
+
+```{r ocon-norm}
+# Mean, var and SD
+ocon.sum <- ddply(ocon, .(conc), summarise, 
+                n = length(na.omit(od)),
+                mean.od = mean(od, na.rm = TRUE),
+                var.od =var(od, na.rm = TRUE))
+ocon.sum
+```
+
+## Variance regression
+
+With our estimates for mean response and variance of the response for each calibrator (known concentration) group, we can look at the relationship between them. The literature generally recommends starting with a power function, e.g. [@Dunn2013]:
+
+$$Var(y) = intercept * Mean(y)^{theta}$$
+
+This function can be linearised by taking the logarithm of each side:
+
+$$log(Var(y)) = log(intercept) + theta * log(Mean(y))$$
+
+Now we have a linear equation with familiar parameters, intercept and slope.
+
+```{r ocon-var-reg}
+# Variance regression uses log(variance) by log(mean response)
+ocon.sum$log.mean.od <- log(ocon.sum$mean.od)
+ocon.sum$log.var.od <- log(ocon.sum$var.od)
+
+# Variance regression using linear regression function, lm()
+var.reg <- lm(log.var.od ~ log.mean.od, data = ocon.sum)
+summary(var.reg)
+theta <- coef(var.reg)[[2]]
+```
+
+The variance regression results say that for every 1 unit increase log(mean.response) increase, log(variance) increases about `r round(coef(var.reg)[[2]], 1)` times; this is our estimate for $theta$. On the untransformed scale, the relationship is multiplicative. For example, as mean response doubles from 0.3 to 0.6, variance goes from `r signif(exp(coef(var.reg)[[1]])*0.3^coef(var.reg)[[2]], 2)` to `r signif(exp(coef(var.reg)[[1]])*0.6^coef(var.reg)[[2]], 2)` or about an 8-fold increase---which is also obtained from 2^3^ = 8. This relative change holds true for each mean response (in the observed range). 
+
+Let's plot it:
+
+```{r ocon-var-reg-plot, fig.width=13}
+p.log <- ggplot(aes(y = log.var.od, x = log.mean.od), data = ocon.sum) + 
+    geom_point(size = 4, shape = 21, fill = "grey") + 
+    stat_function(fun = function(x) coef(var.reg)[[1]] + coef(var.reg)[[2]] * x)
+
+p.abs <- ggplot(aes(y = var.od, x = mean.od), data = ocon.sum) + 
+    geom_point(size = 4, shape = 21, fill = "grey") + 
+    stat_function(fun = function(x) exp(coef(var.reg)[[1]])*x^coef(var.reg)[[2]])
+
+grid.arrange(p.log, p.abs, ncol = 2, 
+main = "Variance regression shown on log (left) and absolute (right) scales")
+```
+
+Although there seems to be a smooth trend for the RER, the relationship is not known exactly. This uncertainty may be expressed in terms of confidence intervals for the regression parameters (i.e. the slope and intercept) or confidence bands around the regression line:
+
+```{r ocon-ci-var-reg}
+confint(var.reg)
+plotFit(var.reg, interval = "confidence", pch = 21, bg = "grey", shade = TRUE,
+        col.conf = blues[4], 
+        main = "Variance regression with 95% confidence bands")
+```
+
+We'll carry forward the point estimate for theta, `r round(theta, 2)`, to curve-fitting, but keep in mind that there is considerable uncertainty in this estimate ranging from 1.9--4.1 (depending on the confidence level with which you are comfortable). 
+
+**Variance components using ANOVA**
+
+The literature often recommends [ANOVA (ANalysis Of VAriance)](extra_glossary.html#ANOVA) for estimating the RER. Given our simple data structure, ANOVA will not provide more information than the variance estimates calculated above, but we revisit ANOVA and *pooled* variance estimates in the [R ELISA tutorial](calib_tut3_variance_elisa.html). 
+
+
+## Summary
+
+In this tutorial, we characterised the variance in the response with respect to the magnitude of response---the RER---using calibrator group as a factor. We estimated the variance function with linear regression and a linearised power function, which is one of the major methods recommended in the literature [e.g. @Dudley1985, @Dunn2013], although not in O'Connell [-@OConnell1993]. We carry forward the power parameter, theta = `r round(theta, 2)`, to the [O'Connell curve-fitting tutorial](calib_tut4_curve_ocon.html) keeping in mind that there is a lot of uncertainty in this estimate.
+
+
+<br>
+<button type="button" class="btn"><a href="calib_tut4_curve_background.html"> Next: Curve-fitting background &raquo;</a></button>
+<!--
+<button type="button" class="btn"><a href="elisa.html"> Tutorial: Data preparation for R's ELISA &raquo;</a></button>
+-->
+<br>
+
+
+## References
+
+

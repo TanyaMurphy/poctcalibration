@@ -1,0 +1,30 @@
+---
+title: "Concentration estimation and the precision profile"
+output:
+  html_document:
+    toc: true
+
+bibliography: "../../Literature/library.bib"
+---
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
+  <li><a href="calib_tut5_precision_background.html">Background</a></li>
+  <li><a href="calib_tut5_precision_ocon.html">O'Connell's ELISA</a></li>
+  <li><a href="calib_tut5_precision_elisa.html">R's ELISA{gtools}</a></li>
+</ul>
+<br>
+
+## Background
+
+*in development*
+
+
+### Estimating the concentration of unknown samples
+
+The unknown concentrations are calculated from the inverse function of the fitted model. The inverse function is known for each of the functions we are using; therefore, this is a simple task. We will not broach parameter errors in the inverse function until the supplementary tutorial, however. 
+
+Concentration estimates are also calculated for the samples of known concentration. The estimated concentration is compared to the known concentration for model or test evaluation. The difference can be expressed as an absolute or relative difference, sometimes referred to as *recovery*. 
+
+[@Dudley1985]

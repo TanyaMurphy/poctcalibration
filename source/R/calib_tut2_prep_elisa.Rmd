@@ -1,0 +1,428 @@
+# Data Preparation
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="../_calibration.html">&laquo; Back to calibration overview</a></li>
+  <li><a href="background.html">Background</a></li>
+  <li><a href="data_sets.html">Data sets overview</a></li>
+  <li><a href="ocon.html">O'Connell's ELISA</a></li>
+  <li class="active"><a href="elisa.html">R's ELISA</a></li>
+</ul>
+<br>
+
+Using [R's ELISA data set](data_sets.html#R_s_ELISA_gtools__data_set) from the gtools package, we prepare an analysis *data.frame*.
+
+For brevity, we have not shown the package loading, etc. See the [O'Connell tab](ocon.html) to review how to set up the R environment.
+
+```{r prep-b, include=FALSE}
+# In case not already done, we load the needed packages
+# require(knitr)
+# Plot formatting
+source("../../../../source/R/AMgraph.R")
+# If you don't like our ggplot options, reset default
+# theme_set(original.ggplot2.style)
+
+# Package containing the ELISA data set
+require(gtools)
+
+# Data set tools
+require(reshape2)
+require(plyr)
+require(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
+
+# When working interactively (i.e. not calling this file from another function e.g. 'Knit'
+# button or render() in outside script), set working directory to the location of this
+# file. This way you will be working from the same perspective as those outside functions
+# and paths will work either way.
+# getwd()
+# setwd("./source/R/calibration/tut5_curve")
+# Some of these paths may seems redundant, but it's for the outside script reasons above
+data.path <- "../../../../source/data" 
+
+# Some options are set in export script, but may be reset
+# Set width for easy reading (but may sometimes want wider for viewing wide tables)
+# options(width=90, scipen = 4, show.signif.stars = FALSE)
+```
+
+
+## Data import and preparation
+
+Data may be imported from many different file formats (native Rdata, comma-separated, tab-delimited, etc). Here we start with native Rdata.
+
+For the R ELISA data set, we can begin immediately format manipulation then calculate some simple summary statistics as a way to check for errors. After the data is in the format we need for the tutorials, we will save each set in .csv format (comma-separated-values). In subsequent tutorials, we will import that .csv data set directly.
+
+
+### R's ELISA data set 
+
+**Check the location and storage format of your data:** 
+
+The R data sets are already in .Rdata file, R's data storage format.  In the appendices, we demonstrate how to import external data formats or enter data manually.
+
+
+The ELISA data set has 504 observations and 5 variables representing 4 plate-based runs that each included, in duplicate:
+
+- 1 type of blank (aka zero-concentration calibrator, B_0)
+- 7 standard concentrations
+- 7 quality control samples at intermediate concentrations
+- 6 patient samples
+
+The response is optical density (`Signal`) and was read 3 times; therefore, 4 plates x 21 samples x 2 replicates x 3 reads = 504 rows. 
+
+The 3 reads per sample do not represent independent observations so `Signal` should be averaged for each sample. Since no 'right answer' is given for the patient samples, they do not contribute to our analyses and will be dropped. The net number of observations to be used for curve-fitting analyses will be n = 120, or n = 112 if the blanks are subtracted from their...'run-mates'. (See [ELISA{gtools}](#ELISA_gtools_) for more details).
+
+
+**Import and view the data:**
+
+```{r elisa-import}
+# load ELISA into active memory or the 'workspace' 
+data(ELISA)
+
+# Give it a name that is quicker to type
+elisa <- ELISA   
+
+# Print 1st few lines to console to check structure 
+# (default is 6, but can specify another number)
+head(elisa)
+# ... or from the end
+tail(elisa, 10)
+
+# You can also view the data in a spreadsheet-like window:
+# View(d1)
+# If you are using RStudio, the same can be done by clicking the table icon for
+# ELISA in the environment tab (right side)
+
+# For a more formally described structure:
+str(elisa)
+```
+
+The structure function, `str()`, tells us the number of rows (obs) and variables in the data set (i.e. data.frame). The variables are:
+
+- `PlateDay`: one variable indicating plate number and the day it was run. We may want these as two separate variables. It has the attribute 'Factor' (which we will explain later) with 4 possible values, or 'levels'.
+
+- `Read`: each signal was read 3 times, but these do not represent independent observations. It does potentially reduce measurement error, but [those issues] are not our main concern right now. We will collapse the data into one row per replicate by averaging the 3 reads. The replicates (duplicates) within `PlateDay-Description-Concentration` are not labelled yet, however; in order to distinguish the replicates and not average them, we will add a `rep` variable. `Read` has the attribute 'Factor' with 3 levels.
+
+- `Description`: a character variable describing whether the sample is a standard (calibrator), a blank (zero-calibrator), quality control sample or patient sample ("Patient" 1 through 6). 
+
+- `Concentration`: a numerical variable for the known concentration as determined by the manufacturer of the standard solution or quality control samples. We will rename it `conc` so it is quicker to type.
+
+- `Signal`: a numerical variable for the observed response, optical density. We will rename it `od` so it is quicker to type.
+
+**Create a new data.frame dropping the patient samples:**
+
+```{r elisa-prep1}
+# Identify patient samples
+# Since we want 'Patient 1', 'Patient 2'... a straight 'not equals' (!=) would
+# not work (or we would have to list each possibility)
+# Use grep(), which means find rows where "Patient" is in Description and
+# DON'T return those (invert = TRUE)
+
+# Square brackets for indexing (matrix notation): [rows, columns]
+
+# Leaving column section blank implies all columns 
+elisa1 <- elisa[grep("Patient", elisa$Description, invert = TRUE), ]
+
+# Strange, but must specify the data.frame containing the variable each time.
+# Vestiges of earlier times... (there are newer packages that avoid this 
+# redundancy, but best to learn some conventions first)
+
+# Compare before and after with a contingency table
+# Before
+table(elisa$Description)
+# After
+table(elisa1$Description)
+# Cross tabs (after)
+table(elisa1$Concentration, elisa1$Description)
+```
+
+**Add `rep` variable and simplify some other labels:**
+
+```{r elisa-prep2}
+# The data are in pairs (replicates follow one another) throughout the whole
+# data set so replicating a simple sequence (number of rows / 2) times will do
+elisa1$rep <- rep(c(1, 2), times = nrow(elisa1)/2)
+head(elisa1)
+
+# Factors will be explained in more detail in the Exploratory Data Analysis
+# chapter. For now, suffice it to say they can be treated as characters
+# variables or 'strings'
+# Separate plate and day into simpler variables using ifelse()
+# Usage: ifelse(condition, if so then this, else this)
+elisa1$plate <- ifelse(elisa1$PlateDay == "Plate 1 (Day 1)", 1, NA)
+# Are we getting what we intended?
+# 1st few rows
+head(elisa1)
+# Last few rows
+tail(elisa1)
+# Looks good. Continue with rest of the levels
+elisa1$plate <- ifelse(elisa1$PlateDay == "Plate 2 (Day 1)", 2, elisa1$plate)
+elisa1$plate <- ifelse(elisa1$PlateDay == "Plate 3 (Day 2)", 3, elisa1$plate)
+elisa1$plate <- ifelse(elisa1$PlateDay == "Plate 4 (Day 2)", 4, elisa1$plate)
+
+# We could use character match again, but for some mysterious reason, in 
+# this situation we need to use grepl() not grep() (as in d2 <- d1[... above)
+elisa1$day <- ifelse(grepl("(Day 1)", elisa1$PlateDay), 1, 2)
+
+# This time keep all rows, but drop 1st variable, PlateDay
+elisa2 <- elisa1[ , -1]
+
+# Rename some variables
+names(elisa2) <- c("read", "descrip", "conc", "Signal", "rep", "plate", "day")
+# Could have done it individually if the total number of variables was large and
+# the number to be renamed was few
+
+# Replace values
+elisa2$descrip <- ifelse(elisa2$descrip == "Quality Control Samples", 
+                         "QC", elisa2$descrip)
+
+head(elisa2, 20)
+```
+
+Much tidier! 
+
+**Collapse the three readings by `plate-conc-rep`:**
+
+```{r elisa-prep3}
+# the dplyr package has some convenience functions conceptually similar to
+# SQL select functions or SAS' 'by' statement.
+# Specify the groups (creates indexed data.frame for other steps)
+elisa3 <- group_by(elisa2, day, plate, descrip, conc, rep)
+# elisa3 looks the same as elisa2, but has additional attributes
+elisa3
+# Collapse elisa3 to 1 line per group (using mean)
+elisa4 <- summarise(elisa3, od = mean(Signal))
+# In addition to mean(), elisa4 was sorted by group variables in the order we
+# listed them in the group_by step. elisa4 inherits elisa3's attributes
+elisa4
+# We've got what we wanted, so let's drop the number suffix
+elisa <- elisa4
+
+# Save it as a .csv file for the next tutorial
+# (No need to rewrite it when 'knitting' report. The relative file path would be
+# wrong, too.)
+# write.csv(elisa, file = "./data/elisa.csv", row.names = FALSE, quote = FALSE)
+
+# We didn't need to create a new data.frame with each modification
+# Could have replaced the working copy such as:
+elisa1 <- elisa1[ , -1]
+# if an error occured, we would go back to the last successful data.frame
+
+# To list or remove data from the workspace (just to show function, but these
+# data.frames are not big enough to cause noticeable slow-downs)
+ls()
+rm("elisa1", "elisa2", "elisa3", "elisa4")
+```
+
+**Prepare data set for GraphPad-type analysis.** Convert between 'long' and 'wide' format, substract blank, and export.
+
+```{r elisa-reshape}
+# Reshape (aka transpose) long data set into wide format 
+elisaWide <- dcast(elisa, descrip + conc ~ plate + rep, value.var = "od")
+
+# In this format, several runs fit on one page. 
+# New variable names are automatically formed by concatenating run and rep
+elisaWide[ , 1:8]
+# Or control the number of printed digits and have room for more
+print(elisaWide, digits = 3)
+
+# It is conventional to subtract the blank from each sample (by plate)
+# Indeed GraphPad assumes this has been done since it encourages using
+# log(concentration) is its curve-fitting analyses (can't take log of zero)
+# (We'll explore different eays of handling the blank in R for comparison)
+
+# Specify group_by indexing for next step. Include only BLANK rows
+elisaBlank <- group_by(elisa[elisa$descrip == 'BLANK', ], plate)
+
+# Replicate number (within runs) is not meaningful i.e. blank replicate 2 does
+# not belong with standard replicates 2 any more than standard replicates 1
+# therefore we average the blanks
+elisaBlank2 <- summarise(elisaBlank, blank = mean(od))
+
+# Merge main data.frame d and BLANK data
+elisaDelta1 <- merge(elisa, elisaBlank2)
+# Check. 
+# Note: The print method for data.frames with group_by attributes automatically 
+# prints only first 10 rows, but group_by attributes not inherited after 
+# transpose step, dcast()
+# Must use head() function again to avoid printing whole data set
+head(elisaDelta1)
+
+# Create a new variable dod (short for 'delta od') by subtracting the blank from
+# each observation (notice 'blank' differs by plate only)
+elisaDelta1$dod <- elisaDelta1$od - elisaDelta1$blank
+# Add back the *overall* blank mean to get the data back in the same numerical
+# range as the original range (will be explained further in the Relaxin example
+# and the 'Characterising variance' turtorials)
+elisaDelta1$dod <- elisaDelta1$dod + mean(elisaBlank2$blank)
+head(elisaDelta1)
+# drop the redundant rows and columns
+elisaDelta <- elisaDelta1[elisaDelta1$descrip != "BLANK", 
+          c("plate", "descrip", "conc", "rep", "dod")]
+head(elisaDelta)
+str(elisaDelta)
+# We will use this data set (with BLANK subtracted) in later analysis steps
+# so we'll save it (avoid repeating these steps)
+# (No need to rewrite it when 'knitting' report. The relative file path would be
+# wrong, too.)
+# write.csv(elisaDelta, file = "./data/elisaDelta.csv", row.names = FALSE, 
+# quote = FALSE)
+
+# Repeat transpose with cleaned data set, dd
+elisaDeltaWide1 <- dcast(elisaDelta, descrip + conc ~ plate + rep, 
+                        value.var = "dod")
+
+# For GraphPad, the samples we want to estimate (as if unknown) with the
+# calculated curve, must have a signal, but no concentration, and be listed last
+# We'll create a new data.frame sorted (i.e. arrange()) by 'decrip' in
+# reverse alphabetical order (desc)
+elisaDeltaWide <- arrange(elisaDeltaWide1, desc(descrip), conc)
+elisaDeltaWide$conc <- ifelse(elisaDeltaWide$descrip == "QC", NA, 
+                              elisaDeltaWide$conc)
+
+# Export it for later use in GraphPad
+# write.csv(elisaDeltaWide, file = "./data/elisa_GraphPad.csv", quote = FALSE, 
+#          row.names = FALSE, na = " ")
+
+```
+
+**Convert a wide data.frame to long format:**
+
+```{r elisa-w-to-l}
+# Important to know order/structure of groups and replicates when transposing to
+# long format because labels will need to be added after transposing (unless
+# more sophisticated code used)
+elisaLong <- melt(elisaWide, id = c("descrip", "conc"))
+str(elisaLong)
+
+# Rename 'variable' to 'plateDay' and 'value' column to 'od'
+# Notice the matrix notation for the names() function. The names attribute for a
+# data.frame is a vector (of elements)
+names(elisaLong)[c(3, 4)] <- c('plateDay', 'od') 
+head(elisaLong, 10)
+tail(elisaLong)
+```
+
+That's nice...(but we won't repeat it for each data set)
+
+We have what we need to proceed with the ELISA data. We have checked some of the data along the way for possible problems, but large amounts of data can be difficult to scan by eye so we'll move on to some numerical summaries.
+
+#### Numerical Summaries
+
+Let's summarise the data by concentration to get a 'feel' for our data set and check for errors. This data set is unique among the 4 sets in having quality control samples. Later, we will use these samples in different ways to explore the possible benefits of cross-validation using concentrations between the concentrations used to fit the calibration curve and the fitting the curve with more concentrations. Until then, for brevity, we'll only look at the standard samples. 
+
+Numerical summaries can be done with functions that perform a single task:
+
+```{r elisa-median}
+# Using the original long data.frame, 'elisa', but 'elisaLong' would work too
+# Median by calibrator concentration (just standards)
+with(elisa[elisa$descrip != "QC", ], 
+     by(od, conc, function(x) median(x, na.rm = TRUE)))
+```
+
+...but R contributors have also written functions that package several functions into a new function or, as below with 'ddply' from the plyr package, facilitate performing a few functions at once.  
+
+**The five-number summary is a useful *non-parametric* method:**
+
+```{r elisa-five-num, results='asis'}
+# ------------ Five number summary -----------------------------------  
+# Many aggregating functions accept the argument na.rm. 
+# NA is the placeholder for missing values and 'rm' is for remove. 
+# If you are sure your data set has no missing values for the variable of
+# interest, you can omit the na.rm argument.
+elisa5num <- ddply(elisa[elisa$descrip != "QC", ], .(conc), summarise,
+              n = length(na.omit(od)), 
+              Min = min(od, na.rm = TRUE), 
+              Q1 = quantile(od, probs = 0.25, na.rm = TRUE), 
+              Median = quantile(od, probs = 0.5, na.rm = TRUE), 
+              Q3 = quantile(od, probs = 0.75, na.rm = TRUE), 
+              Max = max(od, na.rm = TRUE),
+              Qlow = quantile(od, probs = 0.025, na.rm = TRUE), 
+              Qhigh = quantile(od, probs = 0.975, na.rm = TRUE))
+
+# There are many ways to print a table nicely. I like this knitr function
+# (digits argument does not work if table includes a character variable)
+kable(elisa5num[, 1:7], format = "markdown", row.names = FALSE, digits = 3)
+```
+
+Table x. Five-number summary for the response (`od`) by concentration (standard samples only)
+
+<!-- 
+Moved from ocon where this summary is not helpful (due to few points by conc)
+
+**The five-number summary** is a popular non-parametric method. Let's use it to summarise `od`: 
+
+```{r ocon-five-num}
+# ------------ Five number summary -----------------------------------  
+# If you are sure your data set has no missing values for the variable of
+# interest, you can omit the na.rm argument.
+# The summary() function returns five num. plus mean
+summary(ocon$od, na.rm = TRUE)
+```
+
+The five-number summary is expressed graphically as a [boxplot](extra_glossary.html#boxplot).
+
+```{r ocon-boxplot, fig.width=5, fig.height=5}
+boxplot(ocon$od, range = 0, boxwex = 0.5)
+# Can add individual points to the boxplot
+stripchart(ocon$od, vertical = TRUE, add = TRUE, pch = 21, bg = "grey", 
+           method = "jitter", jitter = 0.05)
+title(main = "Boxplot of response 'od' for all calibrators")
+```
+
+A five-number summary or boxplot on the whole data set is not really informative because we know the `od` for different concentrations are not comparable. Boxplots by concentration 
+-->
+
+The summary of the data is based on *quantiles*: the smallest value (min), the point that divides the group into 25%--75% of observations, 50-50, 75-25, and the maximum value. Other quantiles can be chosen such as 2.5% and 97.5% for an empirical 95% distribution.
+
+The five-number summary is expressed graphically as a *boxplot*.
+
+```{r elisa-boxplot, fig.width=4}
+# Blank
+boxplot(elisa[elisa$descrip != "QC" & round(elisa$conc, 0) == 5, "od"],
+           range = 0, boxwex = 0.5)
+stripchart(elisa[elisa$descrip != "QC" & round(elisa$conc, 0) == 5, "od"],
+           vertical = TRUE, add = TRUE)
+title("Boxplot for concentration = 5.12")
+```
+
+**Numerical summaries based on assumption of normality:**
+
+The most common parametric methods assume continuous data follow a normal (Gaussian) distribution, where the theoretical population of origin has values distributed symmetrically about the mean and 95% of the data are found within 2 standard deviations (SD) from the mean. Student's t distribution is a more accurate representation of a *sample* from a normal distribution.. 
+
+The next function summarises the `ELISA` data into a table of parametric statistics, mean and standard deviation (SD) implying we believe the response (`od`) follows a normal distribution, N(mean~i~, SD~i~) at each concentration level.
+
+```{r elisa-norm, results='asis'}
+# Mean, var and SD
+elisaNorm <- ddply(elisa[elisa$descrip != "QC", ], .(conc), summarise, 
+                n = length(na.omit(od)),
+                Mean.od = mean(od, na.rm = TRUE),
+                SD.od =sd(od, na.rm = TRUE))
+
+kable(elisaNorm, format = "markdown", row.names = FALSE, digits = 3)
+```
+
+Table x. Mean and standard deviation for the response (`od`) by concentration (standard samples only)
+      
+#### Interpretation
+
+Scan the numerical summaries for unexpected values:
+
+- Are the Min and Max (by concentration) plausible? 
+
+- Are any Min and Max relatively far from Q1 or Q3, respectively? 
+
+    If the above answers are 'yes' and 'no', respectively, then there probably aren't any identifiable typos or major 'outliers'.
+
+- Are the quartiles fairly evenly spaced around the median? 
+
+- Are the Mean and Median similar? 
+
+    If the answer is 'yes' to these questions, there is no obvious *skew* in the response data. It is probably safe to assume the data, by concentration, are reasonably normally distributed (at any given concentration). Our sample size is too small to say whether data are normal by concentration and plate (i.e just 2 observations each).
+
+- What about trends in SD? 
+
+    SD seems to increase with increasing concentration, which will require special attention. This pattern, a special case of 'heteroscedasticity', is a common feature of ELISA data.
+
+No glaring errors. Some of the low values from the 2.05 calibrator will become negative values when the blank is subtracted. We will have to see whether or not it is the case within groups. We'll examine the structure in more detail in the next 2 tutorials. Negative mean `od` (by concentration) will cause problems anytime we need the log value or in observation weights for regression. 
+
+
+

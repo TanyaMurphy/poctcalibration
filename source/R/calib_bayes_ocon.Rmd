@@ -1,0 +1,271 @@
+require(reshape2)
+require(R2WinBUGS)
+
+# options
+options(width = 75, show.signif.stars = FALSE, digits = 5, scipen = 7)
+orig.par <- par()
+
+## Generate confounded dataset
+expit <- function(a){exp(a)/(1+exp(a))}
+p <- 4; n <- 2000
+# p*n draws from N(0,1) to fill the 4 columns of this new marix, c
+c <- matrix(rnorm(p*n), ncol=4
+            , dimnames = list(c(), c("ca", "cb", "cc", "cd"))) 
+x <- rbinom(n, 1, expit(c %*% c(0.5, 0.5, 0.5, 0.5)))
+# so is the true effect of x an OR of exp(1)?
+y <- rbinom(n, 1, expit(cbind(x, c) %*% c(1, 0.5, 0.5, 0.5, 0.5)))
+
+# Descriptive
+dataB <- data.frame(y = y, x= x, c) # want a copy with no factor for later
+data <- data.frame(y = factor(y), x= factor(x), c)
+head(data)
+str(data)
+summary(data)
+
+d.simp <- dataB[1:1000 , c("x", "ca", "cb")]
+J <- nrow(d.simp)
+d.simp$x <- as.integer(d.simp$x)
+data <- c(J=J, as.list(d.simp))
+#file.show(bugs.data(data))
+
+####################  PS model: Logistic ###############################
+model <- function(){ 
+    for (i in 1: J){
+        x[i] ~ dbern(ps[i]) 
+        logit(ps[i]) <- a0 + bca * ca[i] + bcb * cb[i]
+    } 
+    
+    # Priors
+    a0 ~ dnorm(0, 0.0001) 
+    bca ~ dnorm(0, 0.0001) 
+    bcb ~ dnorm(0, 0.0001) 
+
+}
+write.model(model)
+#file.show("model.bug") # if run, make sure file ext. not changed
+# Initial values 
+inits <- list(  c(a0=0.5, bca=0.5, bcb=0.5)
+              , c(a0=0.5, bca=0.5, bcb=0.5)
+              , c(a0=0.5, bca=0.5, bcb=0.5))
+parameters <- c("a0", "bca", "bcb", "ps")
+mcc.sim <- bugs(data, inits = inits, parameters, "model.bug",
+                n.chains=3, n.iter=5000, 
+                bugs.directory="c:/Program Files/WinBUGS14/"
+                , working.directory=getwd()
+                , debug = F
+)
+
+# Print only parameters and text interpretation - but doesn't add much
+# beyond mcmc output below
+# a <- capture.output(print(mcc.sim, digit = 3))
+# cat(a[c(1:7, 508:515)], sep="\n")
+
+# Parameter posterior distributions
+mcmc.out <- as.mcmc.list(mcc.sim)
+# separate the parameter estimates from the predicted/fitted values (if
+# applicable)
+pars <- c(1, 2, 3, 4)
+mcmc.out.main <- mcmc.out[ , pars, ]
+sum.mcc.sim <- summary(mcmc.out.main, quantiles = c(0.025, 0.5, 0.975))
+print(data.frame(sum.mcc.sim$statistics[ ,1:2], sum.mcc.sim$quantiles), digits = 3)
+plot(mcmc.out.main)
+
+# Predicted values (e.g. PS)
+fit1 <- mcmc.out[ , -pars, ]
+fit2 <- data.frame(fit.ca = summary(fit1)$statistics[, 1])
+head(fit2)
+fit2$id <- as.numeric(gsub("[[:punct:]]", "", gsub("[[:alpha:]]", "", row.names(fit2))))
+head(fit2)
+fit3 <- fit2[order(fit2$id),]
+head(fit3)
+fit.ca <- data.frame(x = d.simp$x, fit3)
+head(fit.ca)
+ca1 <- fit.ca[fit.ca$x == 1, ]
+ca0 <- fit.ca[fit.ca$x == 0, ]
+d.ca1 <- density(ca1$fit.ca)
+d.ca0 <- density(ca0$fit.ca)
+par(orig.par)
+plot(d.ca0, lty = 2, main = "PS by x (dashed: x = 0)")
+lines(d.ca1)
+
+# --------------------- end ------------------------------------
+
+####################  PS model: Log-linear ###############################
+# --- Inputs specific to the model ---
+model <- function(){ 
+    for (i in 1: J){
+        x[i] ~ dbern(ps[i]) 
+        log(ps[i]) <- a0 + bca * ca[i] + bcb * cb[i]
+    } 
+    
+    # Priors
+    a0 ~ dnorm(0, 0.0001) 
+    bca ~ dnorm(0, 0.0001) 
+    bcb ~ dnorm(0, 0.0001)
+}
+# Initial values 
+inits <- list(  c(a0=-0.5, bca=0, bcb=0)
+                , c(a0=-0.5, bca=0, bcb=0)
+                , c(a0=-0.5, bca=0, bcb=0))
+parameters <- c("a0", "bca", "bcb", "ps")
+
+# The list position of the parameter estimates (in a nested list of output)
+# as opposed to ex. fitted values, propensity scores). The list will be 
+# arranged alphabetically (but specifying correct position may require some
+# trial and error).
+ps.pars <- c(1, 2, 3, 4)
+outcome.pars <- 
+
+# -------- New Function: 'ps.bugs' Run model and format output -----------
+# This is pretty constant for every model, so wrap up into a function
+ps.bugs <- function{
+    # args: defaults for bugs() seem to work well, but may want easy access to
+    # n.chains, n.iter, debug
+    # may not want to peak at outcome model results until finished tweaking
+    # PS model so build-in that option
+    }
+    {# steps: run bugs model, format parameter results, format PS results
+
+write.model(model)
+mcc.sim <- bugs(data, inits = inits, parameters, "model.bug",
+                n.chains = 3, n.iter = 5000, 
+                bugs.directory="c:/Program Files/WinBUGS14/"
+                , working.directory=getwd()
+                , debug = T
+)
+
+# Parameter posterior distributions
+mcmc.out <- as.mcmc.list(mcc.sim)
+# separate the parameter estimates from the predicted/fitted values (if
+# applicable)
+mcmc.out.main <- mcmc.out[ , pars, ]
+sum.mcc.sim <- summary(mcmc.out.main, quantiles = c(0.025, 0.5, 0.975))
+print(data.frame(sum.mcc.sim$statistics[ ,1:2], sum.mcc.sim$quantiles)
+      , digits = 3)
+# the next plot messes up the options so save original configuration
+orig.par <- par()
+plot(mcmc.out.main)
+
+# Predicted values (e.g. PS) (optional)
+fit1 <- mcmc.out[ , -pars, ]
+fit2 <- data.frame(fit.ps = summary(fit1)$statistics[, 1])
+#head(fit2)
+fit2$id <- as.numeric(gsub("[[:punct:]]", "", gsub("[[:alpha:]]", "", row.names(fit2))))
+#head(fit2)
+fit3 <- fit2[order(fit2$id),]
+$head(fit3)
+fit.ps <- data.frame(x = d.simp$x, fit3)
+$head(fit.ps)
+ps1 <- fit.ps[fit.ps$x == 1, ]
+ps0 <- fit.ps[fit.ps$x == 0, ]
+d.ps1 <- density(ps1$fit.ps)
+d.ps0 <- density(ps0$fit.ps)
+par(orig.par)
+plot(d.ps0, lty = 2, main = "PS by x (dashed: x = 0)")
+lines(d.ps1)
+
+####################  PS model: identity ###############################
+model <- function(){ 
+    for (i in 1: J){
+        x[i] ~ dbern(ps[i]) 
+        ps[i] <- a0 + bca * ca[i] + bcb * cb[i]
+    } 
+    
+    # Priors
+    a0 ~ dbeta(2, 2) 
+    bca ~ dnorm(0, tau) 
+    bcb ~ dnorm(0, tau)
+    tau <- pow(sigma, -2) 
+    sigma ~ dunif(0, 0.4) 
+}
+write.model(model)
+#file.show("model.bug") # if run, make sure file ext. not changed
+# Initial values 
+inits <- list(  c(a0=0.5, bca=0, bcb=0)
+                , c(a0=0.5, bca=0, bcb=0)
+                , c(a0=0.5, bca=0, bcb=0))
+parameters <- c("a0", "bca", "bcb", "ps")
+mcc.sim <- bugs(data, inits = inits, parameters, "model.bug",
+                n.chains=3, n.iter=5000, 
+                bugs.directory="c:/Program Files/WinBUGS14/"
+                , working.directory=getwd()
+                , debug = T
+)
+
+# Parameter posterior distributions
+mcmc.out <- as.mcmc.list(mcc.sim)
+# separate the parameter estimates from the predicted/fitted values (if
+# applicable)
+pars <- c(1, 2, 3, 4)
+mcmc.out.main <- mcmc.out[ , pars, ]
+sum.mcc.sim <- summary(mcmc.out.main, quantiles = c(0.025, 0.5, 0.975))
+print(data.frame(sum.mcc.sim$statistics[ ,1:2], sum.mcc.sim$quantiles), digits = 3)
+plot(mcmc.out.main)
+
+# Predicted values (e.g. PS)
+fit1 <- mcmc.out[ , -pars, ]
+fit2 <- data.frame(fit.ca = summary(fit1)$statistics[, 1])
+head(fit2)
+fit2$id <- as.numeric(gsub("[[:punct:]]", "", gsub("[[:alpha:]]", "", row.names(fit2))))
+head(fit2)
+fit3 <- fit2[order(fit2$id),]
+head(fit3)
+fit.ca <- data.frame(x = d.simp$x, fit3)
+head(fit.ca)
+ca1 <- fit.ca[fit.ca$x == 1, ]
+ca0 <- fit.ca[fit.ca$x == 0, ]
+d.ca1 <- density(ca1$fit.ca)
+d.ca0 <- density(ca0$fit.ca)
+par(orig.par)
+plot(d.ca0, lty = 2, main = "PS by x (dashed: x = 0)")
+lines(d.ca1)
+
+
+
+# 
+# 
+# 
+# d2$pred.y <- schools.sim$summary[8:27, 1]
+# ps.model <- function(){
+#     # Priors
+#     a_0 ~ dnorm(0, 0.0001)
+#     b_rural ~ dnorm(0, 0.0001)
+#     b_male ~ dnorm(0, 0.0001)
+#     b_age55 ~ dnorm(0, 0.0001)
+#     b_age60 ~ dnorm(0, 0.0001)
+#     b_age65 ~ dnorm(0, 0.0001)
+#     b_age70 ~ dnorm(0, 0.0001)
+#     b_ps ~ dnorm(0, 0.0001)
+#     # Propensity score likelihood
+#     for (j in 1:J){
+#         rural[j] ~ dbern(p[j])
+#         logit(p[j]) <- a_0 + b_male * male[j] +
+#             b_age55 * age55[j] + b_age60 * age60[j] +
+#             b_age65 * age65[j] + b_age70 * age70[j]
+#         # Get feedforward-only propensity score (linear)
+#         p.star[j] <- cut(p[j])
+#         # must also get ps quintiles
+#     }
+#     
+#     # Outcome model likelihood
+#     for (j in 1:J){
+#         y[j] ~ dpois(lambda[j])
+#         log(lambda[j]) <- a_0 + b_rural * rural[j] + b_ps * p.star[j] 
+#     }
+#     
+# }
+# 
+# write.model(model)
+# #file.show("model.bug")
+# 
+# parameters <- c("a_0", "b_rural", "b_male", "b_age55", "b_age60"
+#                 , "b_age65", "b_age70", "lambda")
+# schools.sim <- bugs(data, inits = NULL, parameters, "model.bug",
+#                     n.chains=3, n.iter=5000, debug = F,
+#                     bugs.directory="c:/Program Files/WinBUGS14/"
+#                     , working.directory=getwd()
+# )
+# 
+# 
+
+
