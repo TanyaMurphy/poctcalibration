@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Calibration Curve-fitting</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Calibration Curve-fitting</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#basic-curve-fitting">Basic curve-fitting</a><ul>
+<li><a href="#unweighted-nonlinear-regression-in-r">Unweighted nonlinear regression in R</a></li>
+<li><a href="#basic-weighted-curve-fitting">Basic weighted curve-fitting</a></li>
+</ul></li>
+<li><a href="#iteratively-reweighted-least-squares-algorithm">Iteratively reweighted least squares algorithm</a></li>
+<li><a href="#the-inverse-function-and-error-model">The inverse function and error model</a></li>
+<li><a href="#summary">Summary</a></li>
+</ul>
+</div>
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li>
+<a href="calib_overview.html">« Back to calibration overview</a>
+</li>
+<li>
+<a href="calib_tut4_curve_background.html">Background</a>
+</li>
+<li>
+<a href="calib_tut4_curve_ocon.html">O’Connell’s ELISA</a>
+</li>
+<li>
+<a href="calib_tut4_curve_elisa.html">R’s ELISA{gtools}</a>
+</li>
+</ul>
+<p><br></p>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>Finally, we get into the core of calibration, the <strong>curve-fitting</strong> step, again using the O’Connell’s ELISA data. This first example of curve-fitting and derivation of the inverse model is long because the steps in the analysis are explained in greater detail than in later examples.</p>
+<!---
+
+Also, later examples will use the functions created in this tutorial---indicated by the following code comments:
+
+``` 
+# ------- [function/algorithm name] ------
+(...code...) 
+# ------- end ---------
+
+```
+
+but readers who do not want to get into the details of writing functions, can simply run the code as usual, ignoring the instructional text about writing functions. 
+
+--->
+<!-- TODO in all the functions, add R package style preamble notes -->
+<hr />
+<div id="learning-objectives-for-this-section" class="section level4">
+<h4>Learning objectives for this section:</h4>
+<ul>
+<li>Fit a calibration curve to one run of data using nonlinear regression (4PL):
+<ul>
+<li>specify non-linear calibration curve functions in R;<br /></li>
+<li>specify a weighting function that reflects change in variance with concentration (RER);<br /></li>
+<li>specify initial values for the parameters of the calibration curve;<br /></li>
+<li>use weighted and unweighted residual plots to evaluate model fit;<br /></li>
+<li>approximate iteratively reweighted least squares (IRLS) regression.</li>
+</ul></li>
+<li>Calculate the inverse function of the calibration curve and:
+<ul>
+<li>return predicted concentrations;<br /></li>
+<li>estimate the variance of the predicted concentration.</li>
+</ul></li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="basic-curve-fitting" class="section level2">
+<h2>Basic curve-fitting</h2>
+<p>First we reload and examine the O’Connell ELISA data:</p>
+<pre class="r"><code># O&#39;Connell ELISA data 
+ocon &lt;- read.csv(file.path(data.path, &quot;ocon.csv&quot;), header = TRUE)
+head(ocon)</code></pre>
+<pre><code>##   conc rep    od
+## 1    0   1 0.100
+## 2    0   1 0.120
+## 3    3   1 0.120
+## 4    8   1 0.120
+## 5   23   1 0.130
+## 6   69   1 0.153</code></pre>
+<pre class="r"><code># Plot the O&#39;Connell data
+par(mfrow = c(1, 2), cex.main = 1, mar = c(4, 4, 1, 2), oma = c(0.5, 0.5, 2.5, 0))
+plot(ocon$conc, ocon$od, pch = 21, bg = &quot;grey&quot;, ylab = &quot;Response (od)&quot;, 
+     xlab = &quot;Concentration&quot;)
+grid()
+# Plot on the log(x) scale
+plot(log(ocon$conc), ocon$od, pch = 21, bg = &quot;grey&quot;, ylab = &quot;Response (od)&quot;, 
+     xlab = &quot;log(concentration)&quot;)
+grid()
+title(&quot;O&#39;Connell&#39;s ELISA: concentration on absolute (left) and log (right) scales&quot;,
+      outer = T)</code></pre>
+<p><img src="calib_tut4_curve_ocon_files/figure-html/ocon-plot-1.png" title="" alt="" width="1248" /></p>
+<pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
+<div id="unweighted-nonlinear-regression-in-r" class="section level3">
+<h3>Unweighted nonlinear regression in R</h3>
+<p>Unlike linear regression, nonlinear regression models are fit using an iterative algorithm, which requires starting values for each unknown parameter. Based on the plot above and the <a href="background.html">interpretation of the parameters of the 4PL function</a>, we can visually estimate reasonable starting values. Given the simple structure of the OConnell data and the strong relationship between concentration and response, starting values do not need to be very accurate.</p>
+<p>The mean of the zero-calibrators, 0.1, is a good starting value for parameter <span class="math">\(d\)</span>. The upper asymptote, <span class="math">\(a\)</span>, looks like it’s going off to a limit of about 1. The <span class="math">\(b\)</span> parameter is harder to imagine, but for an ascending curve, a negative number is needed; -1 will do. From the log(concentration) plot, <span class="math">\(c\)</span>, the inflection point, looks like it may be around 8 so on the absolute scale that is 2981.</p>
+<p><strong>Let’s enter into R all the components for 4PL curve-fitting:</strong></p>
+<pre class="r"><code># ------------ Function: 4PL curve function ---------------------------------
+# We actually loaded it ealier with source(&quot;../../AMfunctions.R&quot;), 
+# but this is what it looks like
+
+M.4pl &lt;- function(x, small.x.asymp, inf.x.asymp, inflec, hill){
+    f &lt;- small.x.asymp + ((inf.x.asymp - small.x.asymp)/
+                              (1 + (x / inflec)^hill))
+    return(f)
+}
+# ------------- end ---------------------------------------------------------
+
+# Create a vector with the starting values
+# (The order of the parameters is important. It determines the list index number in later functions.)
+start.ocon &lt;- c(small.x.asymp = 0.1, inf.x.asymp = 1, inflec = 3000, hill = -1)</code></pre>
+<p><strong>Let’s fit an unweighted 4PL curve first:</strong></p>
+<pre class="r"><code>uw.4pl &lt;- nlsLM(od ~ M.4pl(conc, small.x.asymp, inf.x.asymp, inflec, hill), 
+                     data = ocon,
+                     start = start.ocon)
+summary(uw.4pl)</code></pre>
+<pre><code>## 
+## Formula: od ~ M.4pl(conc, small.x.asymp, inf.x.asymp, inflec, hill)
+## 
+## Parameters:
+##                 Estimate Std. Error t value Pr(&gt;|t|)
+## small.x.asymp    0.11767    0.01231   9.561 6.73e-11
+## inf.x.asymp      1.04351    0.05440  19.184  &lt; 2e-16
+## inflec        3288.68616  650.10993   5.059 1.68e-05
+## hill            -0.84729    0.10216  -8.294 1.78e-09
+## 
+## Residual standard error: 0.04563 on 32 degrees of freedom
+## 
+## Number of iterations to convergence: 5 
+## Achieved convergence tolerance: 0.0000000149</code></pre>
+<p><strong>Interpretation of regression output:</strong></p>
+<ul>
+<li><p><code>Formula</code> reminds us of the model we specified.</p></li>
+<li><p><code>Parameters</code> lists the final point estimate and standard error for each parameter.</p></li>
+<li><p><code>Residual standard error</code> is the square root of MSE, the unexplained variance.</p></li>
+<li><p>Convergence information: Notice that although our starting values were not very accurate, the model converged in only 5 iterations. Sometimes with more complex data structures or with sparse data sets, the algorithm will reach a built-in limit of iterations and we will need to change that limit, choose different starting values or treat some of the parameters as known. We will do this in the <a href="">“R’s ELISA{gtools}”</a> curve-fitting tutorial.</p></li>
+</ul>
+<p><strong>What we’re looking for in a regression model (in order of importance):</strong></p>
+<ul>
+<li><p>Convergence.</p></li>
+<li><p>Do the parameter estimates look reasonable?</p></li>
+<li><p>No model assumption violations: From the residual plots (weighted residuals for weighted models), are the residuals evenly distributed around zero line?</p></li>
+</ul>
+<p>Remember: R^2 and F-tests are not very meaningful with such highly correlated data i.e. known to have a strong relationship between x and y (see the <a href="">Background</a>).</p>
+<p>Using the output for our unweighted nonlinear model, let’s interpret the model using the internal criteria listed above:</p>
+<blockquote>
+<ul>
+<li>Convergence.</li>
+</ul>
+</blockquote>
+<p>The algorithm converged.</p>
+<blockquote>
+<ul>
+<li>Do the parameter estimates look reasonable?</li>
+</ul>
+</blockquote>
+<p>The parameter values have the expected sign and are in plausible ranges.</p>
+<blockquote>
+<ul>
+<li>No model assumption violations…</li>
+</ul>
+</blockquote>
+<p>We can’t answer this with the numerical summary output. Two graphical tools that can help verify regression assumptions are the fitted regression curve and the curve’s standardised residuals. Standardised residuals are the residuals scaled to a normal distribution with standard deviation of 1. The distribution of the residuals can then more easily be judged unacceptably large or small. We wrote a <a href="AWfunctions.html#plotDiag">wrapper function, plotDiag</a> to facilitate this:</p>
+<pre class="r"><code># plotDiag():
+# Enter nlsLM model and overall plot title
+plotDiag.nls(uw.4pl, &quot;Unweighted 4PL calibration model for O&#39;Connell&#39;s ELISA: uw.4pl&quot;)</code></pre>
+<p><img src="calib_tut4_curve_ocon_files/figure-html/plotDiag-1.png" title="" alt="" width="1152" /></p>
+<blockquote>
+<ul>
+<li>No model assumption violations: From the residual plots (weighted residuals for weighted models), are the residuals evenly distributed around zero line?</li>
+</ul>
+</blockquote>
+<p>The fitted curve looks reasonable, but the residual plot illustrates the violation of the homoscedasticity assumption. This indicates that a weighted model is necessary.</p>
+</div>
+<div id="basic-weighted-curve-fitting" class="section level3">
+<h3>Basic weighted curve-fitting</h3>
+<p>One approach to modeling non-constant variance in a regression model is by assigning a weight to each observation such that the weights are inversely proportional to the variance. As discussed in the previous section, we typically notice an increasing association between the observed response and the response variance. We chose to model this using the power function, <span class="math">\(Var(y|x) = a*E(y|x)^{theta}\)</span>, though other functions are possible. Note that <span class="math">\(E(y|x)\)</span> is the predicted value of the response (y) at a given concentration (x). To fit a weighted model within R, we use the <code>weights</code> argument in the nlsLM function. Recall from in the previous section that the best estimate for <span class="math">\(theta\)</span> was 3.</p>
+<pre class="r"><code># Weighted 4PL 
+# Theta for weighting (from &#39;Characterising variance&#39;)
+theta.ocon &lt;- 3
+y.curve &lt;- predict(uw.4pl)
+w.4pl &lt;- nlsLM(od ~ M.4pl(conc, small.x.asymp, inf.x.asymp, inflec, hill), 
+                    data = ocon,
+                    start = start.ocon,
+                    weights = (1 / y.curve^theta.ocon)
+               )
+summary(w.4pl)</code></pre>
+<pre><code>## 
+## Formula: od ~ M.4pl(conc, small.x.asymp, inf.x.asymp, inflec, hill)
+## 
+## Parameters:
+##                  Estimate  Std. Error t value Pr(&gt;|t|)
+## small.x.asymp    0.112907    0.002115  53.383  &lt; 2e-16
+## inf.x.asymp      1.131557    0.120940   9.356 1.13e-10
+## inflec        4501.949633 1569.162177   2.869  0.00723
+## hill            -0.738109    0.050578 -14.593 1.07e-15
+## 
+## Residual standard error: 0.1534 on 32 degrees of freedom
+## 
+## Number of iterations to convergence: 6 
+## Achieved convergence tolerance: 0.0000000149</code></pre>
+<pre class="r"><code>plotDiag.nls(w.4pl, &quot;Weighted 4PL calibration model for O&#39;Connell&#39;s ELISA: w.4pl&quot;)</code></pre>
+<p><img src="calib_tut4_curve_ocon_files/figure-html/w4pl-1.png" title="" alt="" width="1152" /></p>
+<p>The fitted curve hardly changes, but the residuals look much better. Depending on the outlier criterion you use, one data point (for concentration = 23) may be considered an outlier. We prefer not to exclude borderline questionable points, however—especially when there are so few replicates.</p>
+<p>In the original O’Connell tutorial, their modeling algorithm settles on a different value for theta: 2.4; that is, 2 x 1.2 because they use a parameterization in terms of standard deviation rather than variance <span class="citation">(1993, 110)</span>. <!-- Nandini: Not sure if this insert is appropriate at this stage. --> <strong>Let’s see how a different <span class="math">\(theta\)</span> value affects residuals:</strong></p>
+<pre class="r"><code># A different theta, 2.4 (from the O&#39;Connell article)
+theta.ocon.lit &lt;- 2.4
+w.lit.4pl &lt;- nlsLM(od ~ M.4pl(conc, small.x.asymp, inf.x.asymp, inflec, hill), 
+                    data = ocon,
+                    start = start.ocon,
+                    weights = (1 / y.curve^theta.ocon.lit)
+               )
+summary(w.lit.4pl)</code></pre>
+<pre><code>## 
+## Formula: od ~ M.4pl(conc, small.x.asymp, inf.x.asymp, inflec, hill)
+## 
+## Parameters:
+##                  Estimate  Std. Error t value Pr(&gt;|t|)
+## small.x.asymp    0.113199    0.002444  46.326  &lt; 2e-16
+## inf.x.asymp      1.111586    0.083880  13.252 1.54e-14
+## inflec        4189.402732 1117.980807   3.747 0.000708
+## hill            -0.750911    0.048126 -15.603  &lt; 2e-16
+## 
+## Residual standard error: 0.09675 on 32 degrees of freedom
+## 
+## Number of iterations to convergence: 6 
+## Achieved convergence tolerance: 0.0000000149</code></pre>
+<pre class="r"><code>plotDiag.nls(w.lit.4pl, &quot;Weighted 4PL calibration model for O&#39;Connell&#39;s ELISA: w.lit.4pl&quot;)</code></pre>
+<p><img src="calib_tut4_curve_ocon_files/figure-html/w4pl-lit-1.png" title="" alt="" width="1152" /></p>
+<p>Again, no visible difference in the fitted curve, but the weighted residuals plot changes a little. At this slightly lower value of <span class="math">\(theta\)</span>, there seems to still be some increase in the residuals at high response values. A larger data set would be needed to make a definitive choice.</p>
+<!-- the following is for exploratory purposes and does not appear in the final output -->
+<pre class="r"><code># What are the parts of the model object and summary object
+summary(w.4pl)
+weights(w.4pl)
+mean(weights(w.4pl))
+sum(weights(w.4pl))
+# Unweighted residuals
+resid(w.4pl)
+# Unweighted sum of squares - use to compare models
+sum(resid(w.4pl)^2)
+# Unweighted MSE
+sum(resid(w.4pl)^2)/summary(w.4pl)$df[[2]]
+# Unweighted RSE
+sqrt(sum(resid(w.4pl)^2)/summary(w.4pl)$df[[2]])
+
+# Weighted residuals - use this for plotting
+summary(w.4pl)$resid
+# Same as 
+sqrt(weights(w.4pl))*resid(w.4pl)
+# Weighted sum of squares
+sum(summary(w.4pl)$resid^2)
+# RSE (sigma) - weighted
+summary(w.4pl)$sigma</code></pre>
+</div>
+</div>
+<div id="iteratively-reweighted-least-squares-algorithm" class="section level2">
+<h2>Iteratively reweighted least squares algorithm</h2>
+<p>As we have seen, weighting has a very small effect on the fitted regression curve with these data, but a big effect on the error model. Therefore, we expect the error model may be sensitive to the representation of <span class="math">\(y\)</span> in the denominator of the weight function, as well as to <span class="math">\(theta\)</span>. Generally the raw response values are not used. One could use mean response by calibrator group or the response predicted by the unweighted model. <!-- Doesn't work within knirt script (an environment thing, I think): The latter is what is done in `nlsLM(...weights = wfct())` using the `fitted` option; that is, the function is fitting the unweighted model, passing the predicted response values to the `wfct()` and re-fitting a weighted model. --> Iteratively reweighted regression goes a step further and repeats the cycle until the changes in weighted sum of squares fall below some threshold.</p>
+<p>We have written our own approximation of an iteratively reweighted least squares (IRLS) algorithm as function, <a href="AWfunctions.html#IRLS">IRLS</a>, and a wrapper to display the results, <a href="AWfunctions.html#summaryIRLS">summaryIRLS</a>:</p>
+<pre class="r"><code># Use new function IRLS.4pl()
+# Provide data.frame, theta (using O&#39;Connell&#39;s here), and start values
+w2.4pl &lt;- IRLS.4pl(df = ocon, theta = theta.ocon.lit, start = start.ocon)
+summaryIRLS(w2.4pl)</code></pre>
+<pre><code>## 
+## The unweighted model:
+## ---------------------------------------------------
+## The weighted sum of squares was stable after 3 cycles
+## 
+## ---------------------------------------------------
+## The final model:</code></pre>
+<p><img src="calib_tut4_curve_ocon_files/figure-html/irls-1.png" title="" alt="" width="1152" /></p>
+<pre class="r"><code># A slightly different version of plotDiag.nls() (used earlier)
+plotDiag.irls(w2.4pl, &quot;IRLS 4PL calibration model for O&#39;Connell&#39;s ELISA: w2.4pl&quot;)</code></pre>
+<p><img src="calib_tut4_curve_ocon_files/figure-html/irls-2.png" title="" alt="" width="1152" /></p>
+<p>The GraphPad results are shown below. Remember that GraphPad does not include the zero-calibrator data, which may account for some differences in the results.</p>
+<p><img src="ocon_GraphPad.png" alt="GraphPad results" /></p>
+<p>The parameter point estimates are virtually the same. Notice, like in O’Connell, GraphPad uses a parameterisation that keeps the ‘Hill Slope’, or <span class="math">\(b\)</span>, positive. For comparison on the inflection point, <span class="math">\(c\)</span>, look at the ‘IC50’ values in GraphPad output (which they have transformed back from the estimated parameter, ‘LogIC50’). R’s standard errors are slightly narrower, but this is probably due to the slightly larger sample size that comes from including the zero-calibrators.</p>
+<p>Let’s get some of the other statistics from our <code>w2.4pl$end.model</code> to compare with GraphPad output:</p>
+<pre class="r"><code># 95% confidence intervals for the parameters
+print(confint(w2.4pl$end.model), digits = 4)</code></pre>
+<pre><code>## Waiting for profiling to be done...</code></pre>
+<pre><code>##                    2.5%     97.5%
+## small.x.asymp    0.1082    0.1179
+## inf.x.asymp      0.9673    1.3203
+## inflec        2611.1074 7781.8225
+## hill            -0.8557   -0.6593</code></pre>
+<pre class="r"><code># Weighted sum of squares
+print(sum(summary(w2.4pl$end.model)$resid^2), digits = 3)</code></pre>
+<pre><code>## [1] 0.301</code></pre>
+<pre class="r"><code># Sigma (RSE) - same as O&#39;Connell&#39;s sigma in results on Fig 10
+print(summary(w2.4pl$end.model)$sigma, digits = 3)</code></pre>
+<pre><code>## [1] 0.097</code></pre>
+<ul>
+<li><p>Following from the SEs, R’s 95% confidence intervals are slightly narrower, but essentially the same.</p></li>
+<li><p>R’s weighted sum of squares is larger because we have more of data points contributing to the sum of squares. Unlike weighted MSE, WSS is not averaged over the degrees of freedom.</p></li>
+<li><p>Residual Standard Error (R’s <code>sigma</code> and GraphPad’s ‘Sy.x’) are virtually the same.</p></li>
+</ul>
+<hr />
+<p>Could re-run the algorithm using O’Connell’s theta instead</p>
+<p>Not run:</p>
+<pre class="r"><code># Using O&#39;Connell&#39;s theta
+w2.lit.ocon &lt;- IRLS.4pl(df = ocon, theta = theta.ocon.lit, start = start.ocon)
+summaryIRLS(w2.lit.ocon)
+plotDiag.irls(w2.lit.ocon, &quot;IRLS 4PL calibration model for O&#39;Connell&#39;s ELISA: w2.lit.ocon&quot;)</code></pre>
+<hr />
+<p>Satisfied that our R analysis replicates the results from GraphPad and the O’Connell article, we can move on to the inverse function.</p>
+</div>
+<div id="the-inverse-function-and-error-model" class="section level2">
+<h2>The inverse function and error model</h2>
+<p>Obtaining the inverse function of the 4PL function, being monotonic, is trivial. As given by Dunn and Wild <span class="citation">(2013, 327)</span></p>
+<p><span class="math">\[x = c \Big(\frac{a-d}{y-d} -1 \Big)^{1/b}\]</span></p>
+<p>The error model for the inverse function is difficult, however. The most common methods for approximating the standard deviation of the predicted concentration are Wald and inversion intervals [ref]. O’Connell and colleagues recommend a ‘Wald-type’ interval based on [second order] Taylor series expansion <span class="citation">(1993)</span>.</p>
+<p>The <a href="AMfunctions.html#sdXhat">sdXhat function</a> returns a data frame of triplets: a range of response values (<code>yp</code>), corresponding predicted concentration (<code>xp</code>) and the standard deviation of the predicted concentration (<code>sd.xp</code>).</p>
+<pre class="r"><code># Don&#39;t forget to include the desired theta value 
+# (other arguments could be left as function defaults)
+ocon.inv.theta.2.4 &lt;- sdXhat.4pl(w2.4pl, theta = theta.ocon.lit)
+head(ocon.inv.theta.2.4$inv.grid, 15) </code></pre>
+<pre><code>##           yp        xp     sd.xp
+## 1  0.1131505   0.00050  0.494705
+## 2  0.1253619  12.05155  6.717273
+## 3  0.1335261  24.10260  8.922721
+## 4  0.1405745  36.15364 10.832795
+## 5  0.1469594  48.20469 12.589745
+## 6  0.1528776  60.25574 14.246460
+## 7  0.1584386  72.30679 15.831467
+## 8  0.1637116  84.35783 17.362970
+## 9  0.1687442  96.40888 18.853693
+## 10 0.1735711 108.45993 20.313039
+## 11 0.1782185 120.51098 21.748218
+## 12 0.1827070 132.56203 23.164906
+## 13 0.1870532 144.61307 24.567660
+## 14 0.1912707 156.66412 25.960191
+## 15 0.1953707 168.71517 27.345558</code></pre>
+<pre class="r"><code># Compare lines 8 and 9 to O&#39;Connell LOD (p.)
+# Since cv = sd/mean, if cv = 0.2 and mean = 88.72 then 
+# sd = 0.2 x 88.72 = 17.74.</code></pre>
+<p>With this output, a simple program can then retrieve (sometimes with addtional, but simple calculations):</p>
+<p>[because it is more portable]</p>
+<ul>
+<li><p>the predicted concentration for new response observations;</p></li>
+<li><p>confidence or prediction intervals for the predicted concentration;</p></li>
+<li><p>precision profile (based on coefficient of variation);</p></li>
+<li><p>predictions for the working range (or Analytical Measurement Range) such as limits of detection, quantification.</p></li>
+</ul>
+<p>Therefore, let’s save the grid (and the data and model) for the next tutorial:</p>
+<pre class="r"><code>save(ocon.inv.theta.2.4, file = &quot;ocon.inv.theta.2.4.RData&quot;)
+ocon.model.theta.2.4 &lt;- w2.4pl[c(1,4)]
+save(ocon.model.theta.2.4, file = &quot;ocon.model.theta.2.4.RData&quot;)</code></pre>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>In this tutorial, we have fit a calibration curve to the O’Connell ELISA data using iteratively reweighted least squares and achieved virtually the same results as the published analysis and GraphPad. We also derived the inverse model from which we can estimate measures of expected performance in the next O’Connell ELISA tutorial.</p>
+<p>For more curve-fitting practice, the (streamlined) procedure is repeated with the <a href="calib_tut5_curve_elisa.html">R’s ELISA data</a> (coming soon…). In that tutorial, you will hopefully see that what may have felt like a long, complicated analysis, really isn’t too bad.</p>
+<br>
+<button type="button" class="btn">
+<a href="calib_tut5_precision_background.html"> Next: Concentration estimation and the precision profile »</a>
+</button>
+<!--
+<button type="button" class="btn"><a href="elisa.html"> Tutorial: Data preparation for R's ELISA &raquo;</a></button>
+-->
+<p><br></p>
+<div class="references">
+<h2>References</h2>
+<p>Dunn, John R, and David Wild. 2013. “Calibration Curve Fitting.” In <em>The Immunoassay Handbook</em>, 4th ed., 323–37. Elsevier. doi:<a href="http://dx.doi.org/10.1016/B978-0-08-097037-0.00013-0">10.1016/B978-0-08-097037-0.00013-0</a>.</p>
+<p>O’Connell, M.a., B.a. Belanger, and P.D. Haaland. 1993. “Calibration and assay development using the four-parameter logistic model.” <em>Chemometrics and Intelligent Laboratory Systems</em> 20 (2): 97–114. doi:<a href="http://dx.doi.org/10.1016/0169-7439(93)80008-6">10.1016/0169-7439(93)80008-6</a>.</p>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

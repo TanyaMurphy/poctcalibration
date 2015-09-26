@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Data Preparation</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+</style>
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Data Preparation</h1>
+</div>
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li>
+<a href="calib_overview.html">« Back to calibration overview</a>
+</li>
+<li>
+<a href="calib_tut2_prep_background.html">Background</a>
+</li>
+<li class="active">
+<a href="calib_tut2_prep_data_sets.html">Data sets</a>
+</li>
+<li>
+<a href="calib_tut2_prep_ocon.html">O’Connell’s ELISA</a>
+</li>
+<li>
+<a href="calib_tut2_prep_elisa.html">R’s ELISA{gtools}</a>
+</li>
+</ul>
+<p><br></p>
+
+<div id="TOC">
+<ul>
+<li><a href="#calibration-curve-data-sets">Calibration curve data sets</a><ul>
+<li><a href="#oconnells-elisa-data">O’Connell’s ELISA data</a></li>
+<li><a href="#rs-elisagtools-data-set">R’s ELISA{gtools} data set</a></li>
+<li><a href="#other-r-data-sets">Other R data sets</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="calibration-curve-data-sets" class="section level2">
+<h2>Calibration curve data sets</h2>
+<p>Scientists have made immunoassay data sets available to the public, which helps us practice with realistic data. The data sets described here have often been used to illustrate concepts in the literature cited on this website.</p>
+<div id="oconnells-elisa-data" class="section level3">
+<h3>O’Connell’s ELISA data</h3>
+<p>O’Connell, Belanger and Haaland <span class="citation">(1993)</span> include this ELISA data set in their article, “Calibration and assay development using the four-parameter logistic model”. This single run includes 10 non-zero concentration standard samples in triplicate plus 2 blanks (also in triplicate). (We are not given any details about the analyte, however.)</p>
+<p><img src="calib_tut2_prep_data_sets_files/figure-html/ocon-entry-1.png" title="" alt="" width="1152" /></p>
+</div>
+<div id="rs-elisagtools-data-set" class="section level3">
+<h3>R’s ELISA{gtools} data set</h3>
+<!-- I think I came across it in one of the early texts. find it -->
+<p>The <a href="http://www.rdocumentation.org/packages/gtools/functions/ELISA" target="_blank">ELISA{gtools}</a> provided with the R package, ‘gtools’, are:</p>
+<p>“Observed signals and (for some observations) nominal concentrations for samples that were aliquoted to multiple assay plates, which were read multiple times on multiple days.”</p>
+<p>Specifically, 4 plate-based assays (over 2 days) each include 7 standard concentrations (<code>Concentration</code>) plus 7 quality control (QC) samples at intermediate concentrations, in duplicate. The six patient samples per plate, also in duplicate, are less useful, however, since no ‘right answer’ is given; they will be dropped. The response, <code>Signal</code>, is optical density and it was read 3 times for each sample. To get a single response for each sample, we will average the <code>Signal</code> by plate and replicate; therefore, the original number of rows, 504, becomes 168 rows of independent samples in our examples. Hence, once signal triplicates are averaged and patient samples are dropped, the sample size by plate is 30—16 standard samples for curve-fitting and 14 QC samples for cross-validation.</p>
+<p><img src="calib_tut2_prep_data_sets_files/figure-html/elisa-1.png" title="" alt="" width="1152" /></p>
+<p>This data set, minus the QC samples, represents a typical immunoassay data collection. We will contrast this design that with the O’Connell data, which contains standard samples in triplicate. In addition to the benefit of an additional set of replicates, the benefits of including concentrations that clearly approach the upper limit of the test will be demonstrated. Some strengths of this data set are its inclusion of quality control samples at concentrations other than the standards, which we will use for cross-validation, and multiple plates. For basic curve-fitting we will use one plate, but this design permits us to show how all four plates can contribute to the estimation of the Response-Error Relationship.</p>
+</div>
+<div id="other-r-data-sets" class="section level3">
+<h3>Other R data sets</h3>
+<p>For more practice, one may also want to analyse these other three immunoassay data sets from R packages:</p>
+<div id="dnasedatasets" class="section level4">
+<h4>DNase{datasets}</h4>
+<p>The <code>DNase</code> data set provided with the basic R distribution is “data obtained during development of an ELISA assay for the recombinant protein DNase in rat serum”. There are 11 runs with 8 concentrations (<code>conc</code>) each, in duplicate, for a total sample size of n=176. The response, <code>density</code>, is optical density and it is already adjusted for the zero-calibrator (i.e. the data set does not include blanks or zero-calibrators). Concentration is in ng/mL. No other variables are provided.</p>
+<p>This is also a good example of typical calibration data set. It is used in examples over several R packages and textbooks (see its <a href="http://www.rdocumentation.org/packages/tpr/functions/dnase">R documentation</a>), as well as in Zeng and Davidian <span class="citation">(1997)</span>.</p>
+<p><img src="calib_tut2_prep_data_sets_files/figure-html/dnase-1.png" title="" alt="" width="1152" /></p>
+</div>
+<div id="relaxinnlme" class="section level4">
+<h4>Relaxin{nlme}</h4>
+<p>The <code>Relaxin</code> data set provided with the R package, <code>nlme</code>, comes with little additional information, but relaxin, generally, is a family of hormones found in mammals, including humans, and is involved in the reproductive system. The data set has 9 runs (<code>Run</code>) with 8 concentrations (<code>conc</code>), in triplicate except for the lowest concentration which only has a single sample; hence the total sample size is n=198. The response, cyclic AMP (<code>cAMP</code>), is a product of the reaction that can be detected by the signal reader. <code>cAMP</code> appears to be already adjusted for blank. No other variables are included.</p>
+<p>These data are used in Belanger <em>et al</em> <span class="citation">(1996)</span>.</p>
+<p>These data provide opportunities to:</p>
+<ul>
+<li><p>further explore the possible benefits of samples collected in triplicate;</p></li>
+<li><p>compare methods for handling heteroscedasticity because here it is particularly severe.</p></li>
+</ul>
+<p><img src="calib_tut2_prep_data_sets_files/figure-html/relaxin-1.png" title="" alt="" width="1152" /></p>
+</div>
+<div id="dat.qil3ncal" class="section level4">
+<h4>dat.QIL3{nCal}</h4>
+<p>The <code>dat.QIL3</code> data set from the <code>nCal</code> package <span class="citation">(Fong et al. 2012)</span> includes immunoassay results for interleukin-3: 6 runs of 10 concentrations in duplicate for a total n=120. Response, <code>fi</code>, is fluorescence and it is already adjusted for the mean blank response. In this subset of the original data set, all the samples are standard samples. The concentration is stored in <code>expected_conc</code>—there is no need to calculate it from <code>dilution</code>.</p>
+<p>Plate position, <code>well</code>, and microbead count, <code>beadct</code>, may be interesting explanatory variables for additional analyses. The curve’s shape and range are similar to <code>DNase</code>, including the limitation that there is limited information near the upper limit of the test. One has the Fong article for comparison, including its use in a Bayesian analysis.</p>
+<p><img src="calib_tut2_prep_data_sets_files/figure-html/il3-1.png" title="" alt="" width="1152" /></p>
+<p>Note: the above data sets are all plate-based assays. We hope to have an instructional POCT dataset soon.</p>
+<br>
+<button type="button" class="btn">
+<a href="calib_tut2_prep_ocon.html"> Next: Data preparation for O’Connell’s ELISA »</a>
+</button>
+<!--
+<button type="button" class="btn"><a href="tut2_prep/data_sets.html"> Tutorial: Data preparation &raquo;</a></button>
+-->
+<p><br></p>
+<div class="references">
+<h2>References</h2>
+<p>Belanger, B a, M Davidian, and D M Giltinan. 1996. “The effect of variance function estimation on nonlinear calibration inference in immunoassay data.” <em>Biometrics</em> 52 (1): 158–75. <a href="http://www.ncbi.nlm.nih.gov/pubmed/8934590" class="uri">http://www.ncbi.nlm.nih.gov/pubmed/8934590</a>.</p>
+<p>Fong, Youyi, Jon Wakefield, S <span>De Rosa</span>, and N Frahm. 2012. “A Robust Bayesian Random Effects Model for Nonlinear Calibration Problems.” <em>Biometrics</em> 68 (December): 1103–12. doi:<a href="http://dx.doi.org/10.1111/j.1541-0420.2012.01762.x">10.1111/j.1541-0420.2012.01762.x</a>.</p>
+<p>O’Connell, M.a., B.a. Belanger, and P.D. Haaland. 1993. “Calibration and assay development using the four-parameter logistic model.” <em>Chemometrics and Intelligent Laboratory Systems</em> 20 (2): 97–114. doi:<a href="http://dx.doi.org/10.1016/0169-7439(93)80008-6">10.1016/0169-7439(93)80008-6</a>.</p>
+<p>Zeng, Q, and M Davidian. 1997. “Testing homogeneity of intra-run variance parameters in immunoassay.” <em>Statistics in Medicine</em> 16 (15): 1765–76. <a href="http://www.ncbi.nlm.nih.gov/pubmed/9265699" class="uri">http://www.ncbi.nlm.nih.gov/pubmed/9265699</a>.</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

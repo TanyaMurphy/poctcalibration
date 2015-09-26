@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Achira-McGill R tutorial functions</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_overview.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep_background.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance_background.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve_background.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision_background.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Achira-McGill R tutorial functions</h1>
+</div>
+
+
+<!-- Sidebar -->
+<div class="sidebar sidenav affix">
+<p class="sidebar-brand">
+<strong>Contents</strong>
+</p>
+<li>
+<a href="#curve-functions">Curve functions</a>
+</li>
+<li>
+<a href="#inv-curve-functions">Inverse curve functions</a>
+</li>
+<li>
+<a href="#diagnostic-plots">Diagnostic plots</a>
+</li>
+<ul>
+<li>
+<a href="#plotdiag-nls">plotDiag.nls</a>
+</li>
+<li>
+<a href="#plotdiag-irls">plotDiag.irls</a>
+</li>
+</ul>
+<li>
+<a href="#irls-nls">IRLS.nls functions</a>
+</li>
+<ul>
+<li>
+<a href="#irls4pl">IRLS.4pl</a>
+</li>
+<li>
+<a href="#summaryirls">summaryIRLS</a>
+</li>
+</ul>
+<li>
+<a href="#inv-pred">Inverse prediction functions</a>
+</li>
+<ul>
+<li>
+<a href="#sdXhat">sdXhat</a>
+</li>
+<li>
+<a href="#predictconc-4pl">predictConc.4pl</a>
+</li>
+</ul>
+</div>
+<h1 id="curve-functions">
+Curve functions
+</h1>
+<pre class="r"><code># Michaelis-Menten model
+M.micmen &lt;- function(x, offset, Vm, K){
+    f &lt;- offset + Vm * x / (K + x)
+    return(f)
+}
+
+# 4PL model
+M.4pl &lt;- function(x, small.x.asymp, inf.x.asymp, inflec, hill){
+    f &lt;- small.x.asymp + ((inf.x.asymp - small.x.asymp)/
+                              (1 + (x / inflec)^hill))
+    return(f)
+}
+
+# 5PL model  
+M.5pl &lt;- function(x, small.x.asymp, inf.x.asymp, c.5pl, hill, g.5pl){
+    f &lt;- small.x.asymp + ((inf.x.asymp - small.x.asymp)/
+                              (1 + (x / c.5pl)^hill)^g.5pl)
+    return(f)
+}</code></pre>
+<h1 id="inv-curve-functions">
+Inverse curve functions
+</h1>
+<pre class="r"><code>Inv.lr &lt;- function(y, int, beta){
+    f &lt;- (y - int)/ beta
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} 
+
+Inv.micmen &lt;- function(y, offset, Vm, K){
+    f &lt;- K * (y - offset) / (Vm - (y - offset))
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} 
+
+Inv.4pl &lt;- function(y, small.x.asymp, inf.x.asymp, inflec, hill){
+    f &lt;- inflec * ((inf.x.asymp - small.x.asymp) / 
+                       (y - small.x.asymp) - 1)^(1 / hill)
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} 
+
+Inv.5pl &lt;- function(y, small.x.asymp, inf.x.asymp, c.5pl, hill, g.5pl){
+    f &lt;- c.5pl * (((inf.x.asymp - small.x.asymp) / 
+                       (y - small.x.asymp))^(1/g.5pl) - 1)^(1 / hill)
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} </code></pre>
+<h1 id="diagnostic-plots">
+Diagnostic plots for non-linear regression models: plotDiag()
+</h1>
+Plot data with fitted regression line and standardized residual plot
+<h2>
+Class .nls
+</h2>
+<pre class="r"><code># a wrapper for fitted curve and residual plots
+plotDiag.nls &lt;- function(nlsLM.model, title.top){
+    par(mfcol=c(1, 2), oma = c(0.5, 0.5, 2, 0))
+    # adapted from Brandon Greenwell&#39;s investr functions
+    data &lt;- eval(nlsLM.model$data)
+    x.names &lt;- intersect(all.vars(formula(nlsLM.model)[[3]]), colnames(data))
+    y.names &lt;- all.vars(formula(nlsLM.model)[[2]])
+    x &lt;- data[, x.names]  # extract predictor columns
+    x.nz.min &lt;- min(x[x!=0])
+    # Display purposes, we cheat a little to get the zero calibrators included on the
+    # log(x) plot
+    x.fix &lt;- ifelse(x &lt;= 0, x.nz.min/5, x)
+    break.x &lt;- x.nz.min/4
+    y &lt;- data[, y.names]  # extract response columns
+    # Plot data and fitted curve
+    plot(x.fix, y, log = &quot;x&quot;, main = &quot;data and fitted curve&quot;, pch = 20,
+         ylab = &quot;Response&quot;, xlab = &quot;log(Concentration)&quot;, font.main = 3)
+    grid()
+    curve(M.4pl(x, coef(nlsLM.model)[[1]], coef(nlsLM.model)[[2]], 
+                coef(nlsLM.model)[[3]], coef(nlsLM.model)[[4]]), add = T)
+    # Technically, we should not include the zero-calibrators on a log plot, but it&#39;s nice
+    # to have for visualizing the results. This line inserts a break in the x-axis as in
+    # Dudley et al (1985)
+    axis.break(1, break.x, brw = 0.05)
+    # Plot standardised weighted residuals
+    # [add ifelse condition for weighted and unweighted models (title)]
+    std.w.resid &lt;- summary(nlsLM.model)$resid/sd(summary(nlsLM.model)$resid)
+    plot(predict(nlsLM.model), std.w.resid, ylab = &quot;std residuals (in SDs)&quot;, 
+         xlab = &quot;fitted response values&quot;, pch = 20, 
+         main = &quot;standardized residuals&quot;, font.main = 3)
+    # Horizontal lines at y=0 and +/- 2SD
+    abline(h = 0, lty = 3, col = &quot;red&quot;)
+    abline(h = 2, lty = 3)
+    abline(h = -2, lty = 3)
+    title(main = title.top, outer = TRUE)
+    par(mfcol=c(1, 1))
+}</code></pre>
+<h2>
+Class irls
+</h2>
+<pre class="r"><code># a wrapper for fitted curve and residual plots
+plotDiag.irls &lt;- function(irls.model, title.top){
+    # title.top &lt;- &quot;IRLS 4PL calibration model for O&#39;Connell&#39;s ELISA: w2.4pl&quot;
+    par(mfcol=c(1, 2), oma = c(0.5, 0.5, 2, 0))
+    # adapted from Brandon Greenwell&#39;s investr functions
+    data &lt;- irls.model$orig.data
+    x.names &lt;- intersect(all.vars(formula(irls.model$end.model)[[3]]), colnames(data))
+    y.names &lt;- all.vars(formula(irls.model$end.model)[[2]])
+    x &lt;- data[, x.names]  # extract predictor columns
+    x.nz.min &lt;- min(x[x!=0])
+    # Display purposes, we cheat a little to get the zero calibrators included on the
+    # log(x) plot
+    x.fix &lt;- ifelse(x &lt;= 0, x.nz.min/5, x)
+    break.x &lt;- x.nz.min/4
+    y &lt;- data[, y.names]  # extract response columns
+    # Plot data and fitted curve
+    plot(x.fix, y, log = &quot;x&quot;, main = &quot;data and fitted curve&quot;, pch = 20,
+         ylab = &quot;Response&quot;, xlab = &quot;log(Concentration)&quot;, font.main = 3)
+    grid()
+    curve(M.4pl(x, coef(irls.model$end.model)[[1]], coef(irls.model$end.model)[[2]], 
+                coef(irls.model$end.model)[[3]], coef(irls.model$end.model)[[4]]), 
+          add = T)
+    axis.break(1, break.x, brw = 0.05)
+    std.w.resid &lt;- summary(irls.model$end.model)$resid/
+        sd(summary(irls.model$end.model)$resid)
+    plot(predict(irls.model$end.model), std.w.resid, ylab = &quot;std residuals (in SDs)&quot;, 
+         xlab = &quot;fitted response values&quot;, pch = 20, 
+         main = &quot;standardized (weighted) residuals&quot;, font.main = 3)
+    abline(h = 0, lty = 3, col = &quot;red&quot;)
+    abline(h = 2, lty = 3)
+    abline(h = -2, lty = 3)
+    title(main = title.top, outer = TRUE)
+    par(mfcol=c(1, 1))
+}</code></pre>
+<h1 id="irls-nls">
+IRLS.nls
+</h1>
+<pre class="r"><code># We need to estimate both the parameters of the 4PL function as well as the weight
+# function. This can be done by iteratively applying the nlsLM function described above
+# till the residual sum of squares does not reduce significantly. Below is a function that
+# implements this iterative model fitting process. This is the same approach used in the
+# GraphPad software program.
+
+#######################################################
+#
+# 4PL iteratively reweighted LS procedure:
+#
+#  1. args: df, y, x, theta, start values
+#  2. unweighted model (nlsLM)
+#  3. get important output (y.curve, wss) using summary3()
+#  4. calculate weights (uses y.curve and theta)
+#  5. weighted nlsLM
+#  6. d.wss: calculate change in wss (wss1 - wss2) / wss1
+#  7. if d.wss &gt; 0.01 repeat from (3)
+#
+#########################################################
+
+# Use dot &#39;.&#39; to specify class
+IRLS.4pl &lt;- function(df, y = &quot;od&quot;, x = &quot;conc&quot;, theta, 
+                     start = c(small.x.asymp = 0
+                               , inf.x.asymp = 1
+                               , inflec = 1000
+                               , hill = -1)
+)
+{
+    # Keep the original data set with the output object
+    orig.data &lt;- df
+    # Function uses O&#39;Connell&#39;s parameterization of theta
+    theta2 &lt;- theta/2
+    # Insert variables into the 4pl formula 
+    form.4pl &lt;- paste(y, &quot; ~ M.4pl(&quot;, x, &quot;, small.x.asymp, inf.x.asymp, inflec, hill)&quot;)
+    # Unweighted model
+    nls0 &lt;- nlsLM(as.formula(form.4pl), data = df, start = start)
+    # Get the predicted responses
+    y.curve &lt;- predict(nls0)
+    # Weighted sum of squares
+    wss0 &lt;- sum(summary(nls0)$resid^2)
+    # 1st iteration   
+    nls1 &lt;- nlsLM(as.formula(form.4pl), data = df, start = start, 
+                  weights = (1 / (y.curve^2)^theta2))
+    wss1 &lt;- sum(summary(nls1)$resid^2)
+    # Percent change in the weighted sum of squares to control iterations (count)
+    d.wss &lt;- abs(wss0 - wss1) / wss0
+    count &lt;- 1
+    # Repeat fitting until WSS changes by less than 0.5%
+    while (d.wss &gt; 0.005){
+        count  &lt;- count + 1
+        y.curve &lt;- predict(nls1)
+        nls1 &lt;- nlsLM(as.formula(form.4pl), data = df, start = start, 
+                      weights = (1 / (y.curve^2)^theta2))
+        d.wss &lt;- abs(wss1 - sum(summary(nls1)$resid^2)) / wss1
+        wss1 &lt;- sum(summary(nls1)$resid^2)
+    }
+    return(list(orig.data = orig.data, start.model = nls0, cycles = count, end.model = nls1))
+}</code></pre>
+<h2>
+summaryIRLS
+</h2>
+<pre class="r"><code># An irls results wrapper
+summaryIRLS &lt;- function(irls.model){
+    # irls.model &lt;- w2.4pl
+    cat(&quot;\nThe unweighted model:\n&quot;)
+    summary(irls.model$start.model)
+    cat(&quot;---------------------------------------------------&quot;)
+    cat(&quot;\nThe weighted sum of squares was stable after&quot;, 
+        irls.model$cycles, &quot;cycles\n\n&quot;)
+    cat(&quot;---------------------------------------------------&quot;)
+    cat(&quot;\nThe final model:\n&quot;)
+    summary(irls.model$end.model)
+    plot(log(unique(irls.model$orig.data$conc)), unique(predict(irls.model$start.model)), 
+         type = &#39;b&#39;, col = &quot;grey&quot;,
+         ylab = &quot;Fitted Response&quot;, xlab = &quot;log(Concentration)&quot;, 
+         main = &quot;IRLS: unweighted and final weighted&quot;)
+    points(log(unique(irls.model$orig.data$conc)), unique(predict(irls.model$end.model)), 
+           type = &#39;b&#39;, 
+           pch = 19, col = &quot;red&quot;)
+    legend(1, 0.9, legend = c(&quot;Unweighted&quot;, &quot;Final weighted&quot;), lty = 1, 
+           col = c(&quot;grey&quot;, &quot;red&quot;))
+    
+}</code></pre>
+<h1 id="inv-pred">
+Inverse prediction functions
+</h1>
+<h2 id="sdXhat">
+sdXhat
+</h2>
+<pre class="r"><code># The following function returns a data frame of triplets: a range of
+# response values (`yp`), corresponding predicted concentration (`xp`)
+# and the standard deviation of the predicted concentration (`sd.xp`).
+# Derive var(x) from calibration curve model
+# Adapted from S-PLUS code at &lt;http://lib.stat.cmu.edu/S/calibration&gt;
+# Values from vcov(model) = unscaled * sigma^2 but sumary(model)$cov.unscaled is what we
+# need: O&#39;Connell p.103 (left column, about 1/2 page): &quot;denotes the estimated covariance 
+# matrix for [beta-hat], unscaled by [sigma-hat]...&quot;
+
+
+# conf is confidence level for prediction interval
+sdXhat.4pl &lt;- function(irls.model 
+                       # request theta from user since I do not know how to 
+                       # get theta back out of object
+                       , theta 
+                       , m = 3  # check this
+                       , vlen = 700){
+    # model.sum is a irls.4pl() object (from above)
+    model &lt;- irls.model$end.model
+    # theta &lt;- theta.ocon.lit
+    theta2 &lt;- theta/2
+    # Get some information from the original data    
+    data &lt;- irls.model$orig.data
+    x.names &lt;- intersect(all.vars(formula(model)[[3]]), colnames(data))
+    y.names &lt;- all.vars(formula(model)[[2]])
+    x &lt;- data[, x.names]  # extract predictor columns
+    y &lt;- data[, y.names]  # extract response columns    
+    # Gather the bits and pieces
+    # corresponding t value for requested confidence level 
+    degree.freedom &lt;- summary(model)$df[2]
+    cov.un  &lt;- summary(model)$cov.unscaled   # unscaled covariance matrix
+    # O&#39;Connell&#39;s parametrerisation for ascending curves is different
+    # They keep beta positive and switch a and d
+    b       &lt;- coef(model)
+    n       &lt;- length(x)                        # sample size, n
+    xpstart &lt;- min(c(0.0005, min(x[x&gt;0])))      # Setting the starting point for the grid
+    # x values for grid
+    xp      &lt;- c(seq(xpstart, b[[3]], length = round(vlen / 2, 0)), 
+                 seq(b[[3]], max(x), length = round(vlen / 2, 0)))
+    # y values for grid
+    yp      &lt;- as.vector(M.4pl(xp, b[1], b[2], b[3], b[4]))
+    # The derivatives
+    dh.dy &lt;- xp * (b[1]-b[2])/(b[4]*(yp - b[1]) * (b[2] - yp))
+    dh.db1 &lt;- xp/(b[4]*(yp - b[1]))
+    dh.db2 &lt;- xp/(b[4]*(b[2] - yp))
+    dh.db3 &lt;- xp/b[3]
+    dh.db4 &lt;- (-xp/(b[4]*b[4])) * log((b[2]-yp)/(yp-b[1]))
+    # compute the estimated variance of the calibration estimate xp
+    # sigma2 is the mean variance. In weighted models it is scaled by weights
+    sigma2 &lt;-  summary(model)$sigma^2  
+    # The following corresponds to equation at bottom of p.111 of O&#39;Connell (1993)
+    # Note the Var(y) part:
+    # Var(y) = sigma2 * (yp^theta) 
+    # Our parameterization (from weights) uses y.curve^theta, not ^2*theta
+    # If using an outside theta based on variance function as function of SD, not var, 
+    # like in O&#39;Connell, multiply by 2 first
+    var.xnot.hat &lt;- (dh.dy*dh.dy) * sigma2 * (yp^2)^theta2 / m +
+        sigma2 * (dh.db1 * (  dh.db1 * cov.un[1,1]
+                              + dh.db2 * cov.un[2,1]
+                              + dh.db3 * cov.un[3,1]
+                              + dh.db4 * cov.un[4,1])
+                  + dh.db2 * (  dh.db1 * cov.un[1,2]
+                                + dh.db2 * cov.un[2,2]
+                                + dh.db3 * cov.un[3,2]
+                                + dh.db4 * cov.un[4,2])
+                  + dh.db3 * (  dh.db1 * cov.un[1,3]
+                                + dh.db2 * cov.un[2,3]
+                                + dh.db3 * cov.un[3,3]
+                                + dh.db4 * cov.un[4,3])
+                  + dh.db4 * (  dh.db1 * cov.un[1,4]
+                                + dh.db2 * cov.un[2,4]
+                                + dh.db3 * cov.un[3,4]
+                                + dh.db4 * cov.un[4,4]))
+    # Covert to standard deviation
+    sd.xp &lt;- sqrt(var.xnot.hat)
+    # Gather yp and xp (grid) plus sd.xp into a data.frame
+    inv.grid &lt;- data.frame(yp, xp, sd.xp)
+    # Drop any rowns containing NAs or infinite values
+    inv.grid &lt;- inv.grid[is.finite(inv.grid$sd.xp), ]
+    # head(inv.grid, 10)
+    return(list(inv.grid = inv.grid, model.degree.freedom = degree.freedom, 
+                model.sigma2 = sigma2))
+}</code></pre>
+<h2 id="predictconc-4pl">
+predictConc.4pl
+</h2>
+<pre class="r"><code># Accepts a sdXhat.4pl object (such as ocon.grid) and new response
+# observation(s)
+# Each new response is the average of any M replicates 
+# Default is single observation (M = 1)
+predictConc.4pl &lt;- function(sdXhat.object
+                            , conf = 0.95
+                            , M = 1
+                            , y.new){
+    # y.new &lt;- 0.18
+    # sdXhat.object &lt;- ocon.grid
+    # Need dplyr package for lead()
+    require(dplyr)
+    # Rename grid
+    d &lt;- unique(sdXhat.object$inv.grid)
+    # ---- Interpolate new xp for y.new ------
+    d$y.diff &lt;- (d$yp - y.new)
+    # Get next y.diff
+    d$y.offset &lt;- lead(d$y.diff)
+    # Get next xp
+    d$x.offset &lt;- lead(d$xp)
+    # d[7:17, ]
+    # Intercept a for linear segments 
+    # where line xp = a + (delta xp)/(delta y.diff) * y.diff
+    d$a &lt;- d$xp - d$y.diff*(d$x.offset - d$xp)/(d$y.offset - d$y.diff)
+    # Segment closest on left to y.diff = 0
+    closest &lt;- max(d$y.diff[d$y.diff &lt;= 0])
+    # Corresponding x values
+    x.est &lt;- d$a[d$y.diff == closest]
+    x.est.sd &lt;- d$sd.xp[d$y.diff == closest]
+    # Critical values for intervals
+    # corresponding t value for requested confidence level 
+    tcrit &lt;- qt ((conf + 1) / 2, sdXhat.object$model.degree.freedom)
+    # prediction interval
+    x.est.lpl &lt;- x.est - tcrit * x.est.sd * sqrt(1 + 1/M)
+    x.est.upl &lt;- x.est + tcrit * x.est.sd * sqrt(1 + 1/M)
+    pred.int &lt;- c(x.est.lpl, x.est.upl)
+    # confidence interval
+    x.est.lcl &lt;- x.est - tcrit * x.est.sd * sqrt(1/M)
+    x.est.ucl &lt;- x.est + tcrit * x.est.sd * sqrt(1/M)
+    conf.int &lt;- c(x.est.lcl, x.est.ucl)
+    return(list(estimate = x.est, conf.int = conf.int, pred.int = pred.int))
+}</code></pre>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Concentration estimation and the precision profile</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_overview.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep_background.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance_background.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve_background.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision_background.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Concentration estimation and the precision profile</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#concentration-prediction">Concentration prediction</a></li>
+<li><a href="#precision-profile">Precision profile</a></li>
+<li><a href="#summary">Summary</a></li>
+</ul>
+</div>
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li>
+<a href="calib_overview.html">« Back to calibration overview</a>
+</li>
+<li>
+<a href="calib_tut5_precision_background.html">Background</a>
+</li>
+<li>
+<a href="calib_tut5_precision_ocon.html">O’Connell’s ELISA</a>
+</li>
+<li>
+<a href="calib_tut5_precision_elisa.html">R’s ELISA{gtools}</a>
+</li>
+</ul>
+<p><br></p>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p><em>move background material to background tab</em></p>
+<p>In clinical use, one observes the measured response from a test procedure and relies on the inverse model to predict the concentration of analyte in the patient’s sample. If we want to include a margin of error with this point estimate—and we do advocate making this available to users whether or not it is included in default summary output—an error model for the inverse function is needed. As we saw in the previous tutorial, this is a challenging part of calibration when the model in nonlinear and has heterogenoeous errors.</p>
+<!---
+Covered in previous
+The error model for the inverse function quantifies the uncertainty in the model as the standard deviation for *concentration* ($x$) at each response, whereas the in original calibration curve, the error model was in terms of response ($y$). 
+--->
+<p>The approach suggested by the last section of the <a href="calib_tut4_curve_ocon.html#the-inverse-function-and-error-model">curve-fitting tutorial</a> is a numerical approach to estimating the concentration and its precision statistics rather than analytical. By creating a grid of finely spaced results for the inverse model, we can get predictions for a single new observation or precision statistics for a range of concentrations. A popular statistic is the coefficient of variation (%CV). A precision profile is a plot of CV over a range of concentrations. (We could also calculate some measures of the Analytical Measurement Range [e.g. LoD, LoQ], but regulatory institutions recommend doing this as part of the reliability studies.)</p>
+</div>
+<div id="concentration-prediction" class="section level2">
+<h2>Concentration prediction</h2>
+<p>Let’s see how we can return a single concentration estimate from a hypothetical patient sample. First, the point estimate is calculated from the estimated coefficients from the calibration curve and its inverse function. Next, the point estimate and its standard deviation is interpolated from the results grid saved from the last tutorial. From the standard deviation estimate for the predicted concentration, an expression of the uncertainty of the estimate can be calculated such as a <abbr title="Prediction Intervals represent the uncertainty of predicting the value of a single future observation or a fixed number of multiple future observations">prediction interval</abbr> <sup>1</sup>. We wrapped the steps to estimate a new concentration plus interval using the numerical method (i.e. with the grid) in a function, <a href="AMfunctions.html#predictconc-4pl"><code>predictConc.4pl</code></a>.</p>
+<pre class="r"><code># ------------ Point concentration from model ------------------
+# Retrieve the nlsLM model from previous tutorial
+load(&quot;ocon.model.theta.2.4.RData&quot;)
+# Extract model info (not within parent list)
+ocon.model &lt;- ocon.model.theta.2.4[[2]]
+# Extract original data set (as data frame, not within a list)
+ocon &lt;- ocon.model.theta.2.4[[1]]
+# The coefficients
+coef(ocon.model)</code></pre>
+<pre><code>## small.x.asymp   inf.x.asymp        inflec          hill 
+##     0.1131441     1.1136074  4205.8161929    -0.7503010</code></pre>
+<pre class="r"><code># We loaded the inverse 4pl function in the preamble. We can use it to calculate a
+# concentrations from a (hypothetically) observed response
+Inv.4pl(0.18
+       , small.x.asymp = coef(ocon.model)[1]
+       , inf.x.asymp = coef(ocon.model)[2]
+       , inflec = coef(ocon.model)[3]
+       , hill = coef(ocon.model)[4]
+       )</code></pre>
+<pre><code>##    x.hat 
+## 125.2459</code></pre>
+<pre class="r"><code># ---- Point concentration and uncertainty interval from grid --------
+# Import the inverse model grid
+load(&quot;ocon.inv.theta.2.4.RData&quot;)
+ocon.grid &lt;- ocon.inv.theta.2.4
+#str(ocon.grid)
+ocon.grid$inv.grid[40:50, ]</code></pre>
+<pre><code>##           yp       xp    sd.xp
+## 40 0.2751010 469.9914 63.24037
+## 41 0.2776961 482.0424 64.77966
+## 42 0.2802592 494.0935 66.32801
+## 43 0.2827912 506.1445 67.88540
+## 44 0.2852929 518.1956 69.45179
+## 45 0.2877653 530.2466 71.02716
+## 46 0.2902091 542.2977 72.61148
+## 47 0.2926251 554.3487 74.20469
+## 48 0.2950140 566.3997 75.80675
+## 49 0.2973764 578.4508 77.41762
+## 50 0.2997131 590.5018 79.03724</code></pre>
+<pre class="r"><code># Use 
+predictConc.4pl(ocon.grid, y.new = 0.18)</code></pre>
+<pre><code>## $estimate
+## [1] 125.2941
+## 
+## $conf.int
+## [1]  80.99441 169.59375
+## 
+## $pred.int
+## [1]  62.64489 187.94327</code></pre>
+<p>The point estimate from the inverse function is 125.2459 and from the grid is 125.2941. Notice that they are not identical. The grid contains discrete values so the new value had to be interpolated from the two closest values. The difference, however, is tiny compared to the uncertainty in the model. Hence we would report that for an observed response of 0.18, our model predicts a concentration of 125 units with a 95% prediction interval of 63 to 188 units. Obtaining such an interval using the analytic method would not have been a trivial calculation.</p>
+</div>
+<div id="precision-profile" class="section level2">
+<h2>Precision profile</h2>
+<p>Now we derive the precision profile as a descriptor of precision over the concentration range of interest. Precision—or random error, depending on how you look at it—can be predicted for the whole range of values covered by the original calibration data by interpolating, or smoothing, between the predicted CV values. (Remember: we use the CV rather than the SD directly because the CV is scaled to the concentration.) Given the standard deviation of concentration, <span class="math">\(x\)</span>, the coefficient of variation equals <span class="math">\(SD(x)/x\)</span>, which are quantities in the grid. While the measure of variation or level of acceptable error may vary according to the standards of your industry, conventionally, a CV of 20% or less is considered acceptable. Let’s construct a precision profile plot of the estimated CV against the natural log of the nominal concentration and see which range of concentrations has an estimated CV of 20% or less.</p>
+<pre class="r"><code># (this function could be moved to the functions page, but would need some
+# more general arguments to use it for other assays)
+precisionProfile &lt;- function(sdXhat.object
+                             , acceptable.cv = 20){
+    require(ggplot2)
+    # sdXhat.object &lt;- ocon.grid
+    # Rename grid
+    d &lt;- unique(sdXhat.object$inv.grid)
+    # x where cv is smallest
+    x.min.cv &lt;- d$xp[d$sd.xp / d$xp == min(d$sd.xp / d$xp)]
+    # %CV
+    d$pcv &lt;- 100 * d$sd.xp / d$xp
+    if(min(d$pcv) &lt; 20){
+        # ---- Find x values where CV crosses 20% ---------
+        d$y.diff &lt;- (d$pcv - 20)
+        # Get next y.diff
+        d$y.offset &lt;- lead(d$y.diff)
+        # Get next xp
+        d$x.offset &lt;- lead(d$xp)
+        # Intercept a for linear segments 
+        # where line xp = a + (delta xp)/(delta y.diff) * y.diff
+        d$a &lt;- d$xp - d$y.diff*(d$x.offset - d$xp)/(d$y.offset - d$y.diff)
+        # Lower limit
+        # Segment closest on left to y.diff = 0
+        closest &lt;- min(d$y.diff[d$xp &lt; x.min.cv &amp; d$y.diff &gt;= 0])
+        # Corresponding x values
+        x.low &lt;- d$a[d$y.diff == closest]
+        # Upper limit
+        # Segment closest on left to y.diff = 0
+        closest &lt;- max(d$y.diff[d$xp &gt; x.min.cv &amp; d$y.diff &lt;= 0])
+        # Corresponding x values
+        x.high &lt;- d$a[d$y.diff == closest]
+        }
+    else{x.low &lt;- NA
+         x.high &lt;- NA
+         }
+    cat(&quot;Working range (CV&lt;20%):&quot;, round(x.low, 0), &quot;--&quot;, round(x.high, 0))
+    # ---- Precision profile plot --------
+    # Need to generalise scale limits and breaks
+    ggplot(d[d$pcv&lt;60,], aes(y= pcv, x = xp)) + geom_line() + 
+    scale_y_continuous(limits=c(0, 60), expand = c(0, 0)) + 
+    scale_x_continuous(limits=c(2.7, 50000), expand = c(0, 0), 
+                       trans = &quot;log&quot;, 
+                       breaks = c(3, 8, 23, 69, 206, 617, 1852, 5556, 16667, 50000)) +
+#geom_path(aes(x = m2.inv.grid$xp, y = m2.inv.grid$pcv.lcl), linetype = 3) +
+#   geom_path(aes(x = m2.inv.grid$xp, y = m2.inv.grid$pcv.ucl), linetype = 3) +
+    geom_hline(aes(yintercept = 20), colour=&quot;#BB0000&quot;, linetype = 2) + 
+    labs(title = &quot;Precision profile: O&#39;Connell data, theta = 2.4&quot;, 
+         x = &quot;log (Concentration)&quot;, y = &quot;CV (%)&quot;)
+
+}
+
+precisionProfile(ocon.grid)</code></pre>
+<pre><code>## Working range (CV&lt;20%): 91 -- 4698</code></pre>
+<p><img src="calib_tut5_precision_ocon_files/figure-html/prec-prof-1.png" title="" alt="" width="672" /></p>
+<p><strong>Working range and limits of quantification</strong></p>
+<p>Test developers are “responsible for determining the upper and lower limits of the measuring range for the methods and the precision of results at these limits” (NCCLS2004, p.2) We can obtain a rough estimate of the working range from the precision profile that is useful for guidance during development. Working range, limits of detection and quantification for licensing and user documentation, however, are determined using a more formal procedure described by regulatory agencies such as the CLSI.</p>
+<!--
+
+
+## Recovery and interval coverage
+
+We can compare nominal concentration values with model estimates more formally.
+
+
+```r
+# Return grid-derived values for all observed 'od' values in ocon dataset
+
+NewX <- function(data){
+    # data <- ocon
+    y.new1 <- data$od
+    x.new <- matrix(NA, nrow = length(y.new1), ncol = 6)
+    for(i in 1:length(y.new1)){
+        x <- predictConc.4pl(ocon.grid, y.new = y.new1[i])
+        x.new[i,] <- c(y.new1[i], unlist(x))
+        }
+    x.new <- as.data.frame(x.new)
+    names(x.new) <- c("y.new", "pred.conc", "low.ci", "up.ci", "low.pi", "up.pi")
+    x.pred <- cbind(data, x.new)
+    x.pred <- arrange(x.pred[, -4], conc, rep)
+    return(x.pred)
+}
+
+ocon.pred <- NewX(ocon)
+```
+
+```
+## Warning in max(d$y.diff[d$y.diff <= 0]): no non-missing arguments to max; returning -Inf
+```
+
+```
+## Warning in max(d$y.diff[d$y.diff <= 0]): no non-missing arguments to max; returning -Inf
+```
+
+```
+## Warning in max(d$y.diff[d$y.diff <= 0]): no non-missing arguments to max; returning -Inf
+```
+
+```r
+#print(ocon.pred, digits = 2)
+
+# Percent recovery
+# Removing zeros, cannot calculate percent (zero in denominator)
+# nyway, the errors are huge 
+p.rec <- with(ocon.pred[ocon.pred$conc > 0, ]
+              , 100*(conc - pred.conc) / conc )
+plot(ocon.pred$conc[ocon.pred$conc > 0], p.rec
+     , log = "x"
+     , xlab = "Nominal concentration (log)"
+     , ylab = "Revovery (%)")
+abline(h = 0, col = "red", lty = 2)
+```
+
+<img src="calib_tut5_precision_ocon_files/figure-html/predict-conc-all-1.png" title="" alt="" width="672" />
+
+```r
+# Confidence/prediction interval coverage
+# I wanted to look at whether or not the intervals captured the nominal concentration at least 95% of the time, but I don't know if this is the right
+# data to do it with---maybe it is only meaningful with a new data set
+# By eye, the PIs seem a little too conservative in the working range (and a little beyond), but not adequate for the extremes
+```
+
+
+
+-->
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>In this tutorial, we have used the estimates from the calibration curve to predict the concentration, and the uncertainty of the predictions, of hypothetical new observations. We will repeat and build upon these concepts and techniques in future tutorials. The ELISA{gtools} data set includes quality control samples, which provides an additional test of the methods. Therefore, the <a href="">ELISA concentration estimation and precision profile tutorial</a> adds techniques to calculate ‘recovery’ and systematic errors.</p>
+<p>[1] Quoted from: <a href="http://www.propharmagroup.com/blog/understanding-statistical-intervals-part-2-prediction-intervals" class="uri">http://www.propharmagroup.com/blog/understanding-statistical-intervals-part-2-prediction-intervals</a>. Alternatively, see <a href="http://www.itl.nist.gov/div898/handbook/pmd/section5/pmd521.htm" class="uri">http://www.itl.nist.gov/div898/handbook/pmd/section5/pmd521.htm</a></p>
+<div class="references">
+
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

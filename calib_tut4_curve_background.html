@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Calibration Curve-fitting</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Calibration Curve-fitting</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#background">Background</a><ul>
+<li><a href="#curve-functions-and-their-inverse">Curve functions and their inverse</a></li>
+<li><a href="#heteroscedasticity-and-weighting">Heteroscedasticity and weighting</a></li>
+<li><a href="#model-evaluation">Model evaluation</a></li>
+<li><a href="#estimating-the-concentration-of-unknown-samples">Estimating the concentration of unknown samples</a></li>
+<li><a href="#r-functions-introduced-in-this-tutorial">R functions introduced in this tutorial</a></li>
+<li><a href="#summary">Summary</a></li>
+</ul></li>
+</ul>
+</div>
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li>
+<a href="calib_overview.html">« Back to calibration overview</a>
+</li>
+<li>
+<a href="calib_tut4_curve_background.html">Background</a>
+</li>
+<li>
+<a href="calib_tut4_curve_ocon.html">O’Connell’s ELISA</a>
+</li>
+<li>
+<a href="calib_tut4_curve_elisa.html">R’s ELISA{gtools}</a>
+</li>
+</ul>
+<p><br></p>
+<div id="background" class="section level2">
+<h2>Background</h2>
+<p><em>in development</em></p>
+<!--
+
+TODO Still needs major editing, especially the later sections. Some details from the ELISA tutorial probably belong here
+
+In this tutorial we finally get to the crux of calibration. We will:
+
+- describe the relationship between analyte concentration and observed response in data set using classical linear, non-linear and weighted regression methods;
+
+- use the resulting model to estimate analyte concentration in new samples;
+
+- propose metrics by which to compare models and describe the uncertainty in estimated concentrations;
+
+- use existing `R` packages and functions;
+
+
+- use programming loops to repeat a function over a range of 'new' observations.
+
+
+## Background
+
+Let's review some background for the upcoming analysis steps:
+
+- Curve-fitting 
+
+- Point-estimation  
+
+- Inference?
+
+At last, we get to the actual curve fitting. The concentration-signal relationship may be descending or ascending, linear or curved (often sigmoidal) depending on test, to be approximated by the 'calibration curve' or 'standard curve' (even if it's linear). Generally, immunometric ELISA generate an ascending sigmoidal curve, often with some asymmetry. If the range of clinically relevant values falls within the nearly linear portion of the curve, a simpler linear function can be used. Before this and other simplifying assumptions are made, however, the relationship should be well understood. The estimated scalars and constants of the function are referred to as the parameters (specific values differ by test, and possibly by run). A linear function has 2 parameters: slope and y-intercept. A symmetrical sigmoidal curve (e.g. Hill equation, 4PL) has 4 parameters: upper and lower asymptotes, Hill slope (an exponent, not a directly interpretable linear slope) and an inflexion point. The upper asymptote represents the signal generated by concentrations that virtually saturate the [enzyme-antigen-enzyme] complex—the maximum possible signal generated by that test (given the conditions). The inflection point corresponds to IC/EC50 in a symmetrical curve and is directly interpretable and useful in drug studies, for example. If the concentration-signal relationship is significantly asymmetric, as is the case for many ELISAs, a 5th parameter is added to the 4PL model. In the popular 5PL model, the inflection point is still important for curve fitting, but it does not have the same directly interpretable meaning of IC50. Whether frequentist or Bayesian, the non-linear functions are estimated with an iterative algorithm and need some initial values. I don’t know how the typical frequentist curve-fitting software chooses initial values, but in a Bayesian analysis the investigators choose them (along with a range of plausible values) explicitly for each model based on prior knowledge of the test’s properties. In theory, much better estimates can be obtained if there is a lot of prior knowledge. Sometimes the data are manipulated to have the lower asymptote equal zero and the function appears to have 1 parameter less (as in Hill equation in Pollock/Whitesides'  paper).] Imagine all the possible ascending curves you could physically make on a table with a somewhat stiff cable or rope. There are many possibilities if allowed to vary size, shape and position on the table! Similarly, the statistical software has to contend with a huge [sample space], but will estimate a curve function that is closer to the 'true' concentration-signal relationship if the provided data restricts the possibilities, or 'anchors' the curve, especially at the extremes. In the hCG data we have played with, we have good anchoring near the bottom, but estimates for the size and shape of the rest of the curve are very vague. If we had data over a wider range plus concentrations at which the signal is flattening out (and if it hooks), our curve parameter estimates would be so much better. If exploratory or theoretical work can also generate a 'ballpark' figure for IC/EC50, study design and curve estimation can be further improved. A thorough investigation of low, mid and high concentrations across important measurement conditions will also help us develop an efficient calibration verification and adjustment protocol for field use. The major simplifications we hope to justify are that the only curve parameters to vary significantly over reagent or bulb age and hydrogel batch, etc. will be the placement of the curve relative to the y-axis—the height of the curve. If the overall difference between upper and lower asymptotes and the rate of change or shape of the curve between the asymptotes is constant enough, then a model based on difference from a zero standard could be sufficient to ensure reliability between analysers in the field and over time. In this case, a zero calibrator (on the chip?) would deal with a host of potential sources of bias in individual runs: reagent and bulb age, environmental conditions. Protocols for calibration verification, adjustment and software/firmware updates should be kept as simple as possible. Some cost-benefit choices could be made in light of the planned validity study since some of the data from the validity study could be used to enhance the accuracy and precision of the next version of the 'master' curve. 'Master curve 1.0' needs to be very good for the validity study since it will affect the comparison with a reference test, but perhaps the full range of conditions expected in the field need not be replicated in the development of master curve 1.0 if conditions will be fairly controlled for the validity study. The data from the validity study and ongoing work in the lab with expanded conditions (e.g. more) could then be added to the original data to refine 'master curve 2.0' for launch into field use.
+
+-->
+<div id="curve-functions-and-their-inverse" class="section level3">
+<h3>Curve functions and their inverse</h3>
+<p>The most commonly recommended method for calibration is least squares (non-)linear regression using a data set consisting of calibrators of known concentration (x) and their signal readings (y). The unknown sample concentrations are then calculated from the <em>inverse</em> of the estimated function. This is sometimes called inverse regression, but note that the inverse function is not being directly estimated from the data.</p>
+<p><strong>Common calibration curve models. See below for parameter definitions:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Name</th>
+<th align="left">Function</th>
+<th align="left">Inverse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><em>Linear</em></td>
+<td align="left"><span class="math">\(y = int + b * x\)</span></td>
+<td align="left"><span class="math">\(x = \frac{y-int}{b}\)</span></td>
+</tr>
+<tr class="even">
+<td align="left"><em>Michaelis-Menten</em></td>
+<td align="left"><span class="math">\(y = \frac{Vm*x}{k+x}\)</span></td>
+<td align="left"><span class="math">\(x = \frac{k*y}{Vm-y}\)</span></td>
+</tr>
+<tr class="odd">
+<td align="left"><em>4P Logistic</em></td>
+<td align="left"><span class="math">\(y = d + \frac{a-d}{1 + (\frac{x}{c})^b}\)</span></td>
+<td align="left"><span class="math">\(x = c \Big(\frac{a-d}{y-d} -1 \Big)^{1/b}\)</span></td>
+</tr>
+<tr class="even">
+<td align="left"><em>5P Logistic</em></td>
+<td align="left"><span class="math">\(y = d + \frac{(a-d)}{\Big(1 + (\frac{x}{c})^b\Big)^g}\)</span></td>
+<td align="left"><span class="math">\(x = c \Big((\frac{a-d}{y-d})^{1/g} -1 \Big)^{1/b}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Note: In our R scripts, we will use more descriptive labels for the parameters of the logistic models than used by Dunn and Wild or Findlay. These will serve as a memory aid, but also single letter labels are at high risk of being confused with or replaced by another R object since very short names are popular for intermediate steps.</p>
+<ul>
+<li><p><strong><span class="math">\(b\)</span> (<code>beta</code> or <code>hill</code>):</strong> Rate of change, slope, “slope factor” or “Hill slope”. In the case of linear regression, the units of <span class="math">\(b\)</span> are x-units per y-unit. In logistic functions, <span class="math">\(b\)</span> is unit-less.</p></li>
+<li><p><strong><span class="math">\(Vm\)</span>:</strong> On the scale of <span class="math">\(y\)</span>. Traditional notation for upper asymptote (as <span class="math">\(x\)</span> goes to infinity) in Michael-Menten models. Analogous to <span class="math">\(a\)</span> in the logistic models.</p></li>
+<li><p><strong><span class="math">\(k\)</span>:</strong> on the scale of <span class="math">\(x\)</span>. [No intuitive meaning], it affects the rate of approach to <span class="math">\(Vm\)</span>.</p></li>
+<li><p><strong><span class="math">\(c\)</span> (<code>inflec</code>):</strong> On the scale of <span class="math">\(x\)</span>; scales <span class="math">\(x\)</span>. In many applications it has a meaningful value: 50% effective dose (ED50) or inhibitory concentration (IC50) is used as an important benchmark in whole-cell assays or inhibitory drug studies, respectively. Since ED/IC50 is not meaningful in our domain, we will focus on the graphical meaning of <span class="math">\(c\)</span> as inflection point in logistic models.</p></li>
+<li><p><strong><span class="math">\(a\)</span> (<code>inf.x.asymp</code>):</strong> On the scale of y; horizontal asymptote as <span class="math">\(x\)</span> goes to infinity.</p></li>
+<li><p><strong><span class="math">\(d\)</span> (<code>small.x.asymp</code>):</strong> On the scale of y; horizontal asymptote as <span class="math">\(x\)</span> goes, in theory, to negative infinity, but, in practice, to zero.</p></li>
+</ul>
+<p>Note that here and in texts such as Dunn and Wild <span class="citation">(2013)</span>, <span class="math">\(a\)</span> is the asymptote as x goes to infinity regardless of curve direction (increasing or decreasing). The sign of <span class="math">\(b\)</span> controls curve direction. Occasionally authors reverse the position of <span class="math">\(a\)</span> and <span class="math">\(d\)</span> to describe an increasing versus decreasing curve and keep the sign of <span class="math">\(b\)</span> constant. In addition to any theoretical motivation, we find the former choice practical since <span class="math">\(d\)</span> approximates the y-intercept of other models or plotted data.</p>
+<ul>
+<li><strong><span class="math">\(g\)</span> (<code>g.5pl</code>):</strong> no units. Similar properties to <span class="math">\(b\)</span>, it further alters the rate of change, [specifically the section of the curve between <span class="math">\(c\)</span> and <span class="math">\(a\)</span>.]</li>
+</ul>
+<p>Four (and fewer) parameter logistic models are symmetric around the inflection point, <span class="math">\(c\)</span>, <em>on the log(x) scale</em>. The 5PL model is used to fit asymmetric sigmoidal curves (using log(x)) allowing a sharper transition toward one asymptote than the other.</p>
+<p>Figures x–x show how the parameter values change curve shape in the four major model types. Familiarity with the parameters will help with model checking and choosing starting, or initial, values in non-linear regression (explained in more detail later).</p>
+<pre class="r"><code># require(knitr)
+# Graphical preferences for this project
+source(&quot;AMgraph.R&quot;)</code></pre>
+<pre><code>## Loading required package: ggplot2
+## Loading required package: ggthemes
+## Loading required package: gridExtra
+## Loading required package: grid
+## Loading required package: plotrix</code></pre>
+<pre class="r"><code># --- Non-linear and inverse functions used in tutorials ----
+# Actually included in source file &quot;../../../../source/R/AMfunctions.R&quot;
+# if changes are made here, change in AMfunctions.R, too
+# Every model has an intercept (a), and parameters that relate non-zero  
+# x-values to y; sometimes int is zero and drops out
+# ex. linear model: int varies, y change by b*x
+#-------------- Define models -----------------------------------
+# Michaelis-Menten model
+# int always 0, no slope param needed, shape controlled by form
+# Use built-in SSmicmen (stats package): Vm*input/(K+input) or this
+M.micmen &lt;- function(x, offset, Vm, K){
+    f &lt;- offset + Vm * x / (K + x)
+    return(f)
+}
+
+# 4PL model
+M.4pl &lt;- function(x, small.x.asymp, inf.x.asymp, inflec, hill){
+    f &lt;- small.x.asymp + ((inf.x.asymp - small.x.asymp)/
+                              (1 + (x / inflec)^hill))
+    return(f)
+}
+
+# 5PL model  
+M.5pl &lt;- function(x, small.x.asymp, inf.x.asymp, c.5pl, hill, g.5pl){
+    f &lt;- small.x.asymp + ((inf.x.asymp - small.x.asymp)/
+                              (1 + (x / c.5pl)^hill)^g.5pl)
+    return(f)
+}
+
+# ----- Inverse functions -------------------------
+Inv.lr &lt;- function(y, int, beta){
+    f &lt;- (y - int)/ beta
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} 
+
+Inv.micmen &lt;- function(y, offset, Vm, K){
+    f &lt;- K * (y - offset) / (Vm - (y - offset))
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} 
+
+Inv.4pl &lt;- function(y, small.x.asymp, inf.x.asymp, inflec, hill){
+    f &lt;- inflec * ((inf.x.asymp - small.x.asymp) / 
+                       (y - small.x.asymp) - 1)^(1 / hill)
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} 
+
+Inv.5pl &lt;- function(y, small.x.asymp, inf.x.asymp, c.5pl, hill, g.5pl){
+    f &lt;- c.5pl * (((inf.x.asymp - small.x.asymp) / 
+                       (y - small.x.asymp))^(1/g.5pl) - 1)^(1 / hill)
+    names(f) &lt;- &quot;x.hat&quot;
+    return(f)
+} 
+# Also defined in this source file which will be loaded for each tutorial
+source(&quot;AMfunctions.R&quot;)</code></pre>
+<p><img src="calib_tut4_curve_background_files/figure-html/intro-figs2-1.png" title="" alt="" width="1152" /></p>
+<p><strong>Plotted as log(concentration):</strong></p>
+<p><img src="calib_tut4_curve_background_files/figure-html/intro-figs3-1.png" title="" alt="" width="1152" /></p>
+<div id="appx-curveParam-5PL" class="section level4">
+<h4>Relationships among parameters in the 5PL model</h4>
+<p>See figure 2 on page x. The lower part of the curve, below <em>c</em> is a function of <em>b*g</em>. In the upper portion, above the inflection point, the rate of approach to <em>a</em> is only a function of <em>b</em>.</p>
+<table>
+<caption>Table y. Effect of 5PL power parameters on curve shape</caption>
+<thead>
+<tr class="header">
+<th align="left">Model</th>
+<th align="right">b</th>
+<th align="right">g</th>
+<th align="right">b*g</th>
+<th align="left">Curve shape (lower portion)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">I</td>
+<td align="right">-4.3</td>
+<td align="right">0.1</td>
+<td align="right">-0.4</td>
+<td align="left">Most convex</td>
+</tr>
+<tr class="even">
+<td align="left">II</td>
+<td align="right">-2</td>
+<td align="right">0.3</td>
+<td align="right">-0.6</td>
+<td align="left">More convex</td>
+</tr>
+<tr class="odd">
+<td align="left">III</td>
+<td align="right">-3</td>
+<td align="right">0.3</td>
+<td align="right">-0.9</td>
+<td align="left">Nearly linear</td>
+</tr>
+<tr class="even">
+<td align="left">IV</td>
+<td align="right">-4.3</td>
+<td align="right">0.3</td>
+<td align="right">-1.3</td>
+<td align="left">Slight concave up</td>
+</tr>
+<tr class="odd">
+<td align="left">V</td>
+<td align="right">-5</td>
+<td align="right">0.3</td>
+<td align="right">-1.5</td>
+<td align="left">More concave</td>
+</tr>
+<tr class="even">
+<td align="left">VI</td>
+<td align="right">-4.3</td>
+<td align="right">0.5</td>
+<td align="right">-2.2</td>
+<td align="left">Most concave</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="heteroscedasticity-and-weighting" class="section level3">
+<h3>Heteroscedasticity and weighting</h3>
+<p>The reciprocal of the variance function is used to weight the data because… <a href="http://en.wikipedia.org/wiki/Variance_function#Application_.E2.80.93_weighted_least_squares" class="uri">http://en.wikipedia.org/wiki/Variance_function#Application_.E2.80.93_weighted_least_squares</a> [look into original source]</p>
+<p>See also: <a href="http://www.ats.ucla.edu/stat/r/dae/rreg.htm" class="uri">http://www.ats.ucla.edu/stat/r/dae/rreg.htm</a></p>
+<p><a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.154.5344&amp;rep=rep1&amp;type=pdf" class="uri">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.154.5344&amp;rep=rep1&amp;type=pdf</a></p>
+<div id="calculating-weights" class="section level4">
+<h4>Calculating weights</h4>
+<p>The reciprocal of the variance function is used to weight the data; that is, if</p>
+<p><span class="math">\[ Var(y) = a * Mean(y)^{theta} \]</span></p>
+<p>then</p>
+<p><span class="math">\[ weight(obs) = standardized[1/EstimatedMean(y.group)^{theta}] \]</span></p>
+</div>
+<div id="errors-in-weighted-models" class="section level4">
+<h4>Errors in weighted models</h4>
+<p>Weighted residuals…</p>
+<p>Regression line confidence bands:<br />From investr <code>plotFit</code> Rdocs: “Confidence/prediction bands for nonlinear regression (i.e., objects of class nls) are based on a linear approximation as described in Bates &amp; Watts (2007). This [function was inspired] by the plotfit function in the nlstools package.”</p>
+</div>
+</div>
+<div id="model-evaluation" class="section level3">
+<h3>Model evaluation</h3>
+<!--
+
+In this tutorial, models will be evaluated and compared based on the residual plots and, when extra data are available, cross-validation. For example, a cross-validation set made up of the 'QC' samples is used for the ELISA analysis. Raw and percent difference between the predicted and actual (as labelled) concentrations are the metrics used. In recommending these graphical and descriptive data summaries for model diagnostics, we try to relate the research question (i.e. a small sub-question) directly to the method, whereas some traditional model evaluation methods use null-hypothesis tests (ex. t-test/p-value for non-zero slope). A no-association null hypothesis is a ridiculous comparison in many of these applications. [We realise, however, that some uncertainty intervals that we use imply the null hypothesis (?).] Direct measures of fit plus the scientist's judgement will yield conclusions that are as good or better than null-hypothesis tests and lead to faster skill development. 
+
+-->
+<p>See Anderson-Sprecher_1994.pdf about R-squ</p>
+<!--
+
+The next best situation is parallelism where in a 4PL (or 5PL) relationship, all parameters except *c* are common to all runs. This assumes that, once zero-dose adjusted, the lower and upper asymptotes and the rate/shape (*b* and *g*) are constant (within a margin of error) between runs and the only difference is a shift the e the right of left described by *c*. This could be sufficient to explain the apparent varying curve heights since we are only observing data in the lower portion of the underlying curve. 
+
+This assumption plus the ability to model all runs simultaneously, especially given a larger number of runs than the 4 we had in this tutorial, would make curve-fitting more efficient. It would be faster and effectively provide a larger sample for estimation (albeit not simply the sum total of all the data). This can be done with hierarchical, or mixed, models. The parallelism assumption is a big one and elements of hierarchical mixed effects methods written for R (mainly the nlme package) are somewhat controversial---notably the [parameter standard errors?]. We may not need to concern ourselves with those controversies, however, since parametric prediction intervals for the concentration calculated from an inverse function are so controversial anyway. As we show in the supplement for this chapter and the cross-validation section for the ELISA data, [bootstrap intervals or Bayesian methods perform best anyway.]
+
+-->
+</div>
+<div id="estimating-the-concentration-of-unknown-samples" class="section level3">
+<h3>Estimating the concentration of unknown samples</h3>
+<p>See the next set of tutorials, <a href="calib_tut5_precision_background.html">Concentration estimation and the precision profile</a>.</p>
+</div>
+<div id="r-functions-introduced-in-this-tutorial" class="section level3">
+<h3>R functions introduced in this tutorial</h3>
+<p>Some of our favourite functions for calibration and non-linear regression are not part of the more familiar packages for linear regression (e.g. residual plots). Some of these <code>functions</code>{package} are:</p>
+<ul>
+<li><code>nlsLM</code>{minipack.lm}: We have opted to use the <code>nlsLM</code> function for non-linear regression instead of the core <code>nls</code> function for comparability with GraphPad. As explained <a href="http://www.graphpad.com/guides/prism/6/curve-fitting/index.htm?reg_who_developed_nonlinear_regres.htm">here</a> and <a href="http://rmazing.wordpress.com/2012/07/05/a-better-nls/">here</a> there are some advantages to using the Levenberg-Marquardt non-linear least-squares algorithm rather than [the other one]. The resulting R ‘objects’ can be used the same as regular <code>nls</code> objects.</li>
+</ul>
+<!-- Move to DNase curve-fitting tutorial?
+
+- `L.4` or `L.5{drc}`: Self-starting 4- and 5-PL functions. Parameterised as 
+
+$$f(x) = c + \frac{d-c}{(1+\exp(b(x - e)))^f}$$
+
+where, in the case of the 5-PL, $f=1$. This version takes $x$ not $log(x)$ as an input.
+
+--->
+<ul>
+<li><code>plotFit</code>{investr}: Plots the estimated (non-)linear model with the original data, the fitted line and, if desired, the confidence and/or prediction bands.</li>
+<li><code>hatvalues</code> or <code>cooks.distance</code>{drc}</li>
+</ul>
+<p>The drc, quantchem and other calibration curve fitting packages contain a lot of convenience functions, but we prefer to build up a set of functions based on basic functions for instructional purposes. Some of the curve-fitting packages incorporate a lot into one function, including various formal (null-hypothesis) tests for fit (model, parameters, etc). As explained above, we prefer to evaluate models in a more direct way because the null hypothesis tests can be difficult to interpret—they rarely directly address the question of interest. Also, presentation of results is very subjective so we hope the small functions built in these tutorials will help the user build functions that are customised to the needs of their lab and domain and avoid a lot of manual cut-and-paste or formatting (error prone).</p>
+</div>
+<div id="summary" class="section level3">
+<h3>Summary</h3>
+<div class="references">
+<h3>References</h3>
+<p>Dunn, John R, and David Wild. 2013. “Calibration Curve Fitting.” In <em>The Immunoassay Handbook</em>, 4th ed., 323–37. Elsevier. doi:<a href="http://dx.doi.org/10.1016/B978-0-08-097037-0.00013-0">10.1016/B978-0-08-097037-0.00013-0</a>.</p>
+</div>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

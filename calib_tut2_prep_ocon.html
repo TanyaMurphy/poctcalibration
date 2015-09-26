@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Data Preparation</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Data Preparation</h1>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#set-up-the-r-environment">Set up the R environment</a></li>
+<li><a href="#data-preparation">Data preparation</a><ul>
+<li><a href="#manual-data-entry-of-oconnells-elisa-data">Manual data entry of O’Connell’s ELISA data</a></li>
+</ul></li>
+<li><a href="#transposing-a-data.frame">Transposing a data.frame</a></li>
+</ul>
+</div>
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li>
+<a href="calib_overview.html">« Back to calibration overview</a>
+</li>
+<li>
+<a href="calib_tut2_prep_background.html">Background</a>
+</li>
+<li>
+<a href="calib_tut2_prep_data_sets.html">Data sets</a>
+</li>
+<li class="active">
+<a href="calib_tut2_prep_ocon.html">O’Connell’s ELISA</a>
+</li>
+<li>
+<a href="calib_tut2_prep_elisa.html">R’s ELISA{gtools}</a>
+</li>
+</ul>
+<p><br></p>
+<p>Using O’Connell’s ELISA data set introduced on the <a href="calib_tut2_prep_data_sets.html">previous page</a>, we prepare a <strong>data.frame</strong> for analysis.</p>
+<!-- a suggestion from Suraj:
+"a prior objective of the data preparation could have been more elaborate and simple e.g., by juxtaposing the initial(raw data from ELISA) and final data (conc, mean, sd) before the tutorial is started"
+-->
+<hr />
+<div id="learning-objectives-for-this-section" class="section level4">
+<h4>Learning objectives for this section:</h4>
+<ul>
+<li>Manual data entry.<br /></li>
+<li>Data summarisation.</li>
+<li>Transposing a data set from ‘long’ to ‘wide’ format (and vice versa).</li>
+<li>Save a data set.</li>
+</ul>
+<hr />
+</div>
+<div id="set-up-the-r-environment" class="section level2">
+<h2>Set up the R environment</h2>
+<p>In each of the tutorials, we will set up the R environment (or workspace) needed to perform analyses (and control output formatting). If tutorials are run one after the other some commands may be redundant, but reloading packages and preferences will not create any problems.</p>
+<pre class="r"><code># Load the needed packages (in case not already done)
+# recent versions of Rstudio load knitr as needed
+# require(knitr)
+
+# Plot formatting
+source(&quot;AMgraph.R&quot;)</code></pre>
+<pre><code>## Loading required package: ggplot2
+## Loading required package: ggthemes
+## Loading required package: gridExtra
+## Loading required package: grid
+## Loading required package: plotrix</code></pre>
+<pre class="r"><code># Data set tools
+require(reshape2)</code></pre>
+<pre><code>## Loading required package: reshape2</code></pre>
+<pre class="r"><code>require(plyr)</code></pre>
+<pre><code>## Loading required package: plyr</code></pre>
+<pre class="r"><code>require(dplyr) </code></pre>
+<pre><code>## Loading required package: dplyr
+## 
+## Attaching package: &#39;dplyr&#39;
+## 
+## The following objects are masked from &#39;package:plyr&#39;:
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize
+## 
+## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter
+## 
+## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>require(grDevices)
+
+# When working interactively (i.e. not calling this file from another
+# function e.g. &#39;Knit&#39; button or render() in outside script), set working
+# directory to the location of this file. This way you will be working from
+# the a common perspective---outside functions and paths will work either way.
+# getwd()
+# setwd(&quot;./source/R-new&quot;)
+
+# Set options: output width, when scientific notation is used (see options help),
+#              do not include statistical significance star indicators
+options(width=90, scipen = 4, show.signif.stars = FALSE)</code></pre>
+</div>
+<div id="data-preparation" class="section level2">
+<h2>Data preparation</h2>
+<p>Data may be entered manually or imported from many different file formats (native Rdata, comma-separated, tab-delimited, etc).</p>
+<p>Data sets can be stored as lists or rectangular tables (data.frames in R). Data.frames holding data that has some sort of repeating structure (groups, replicates) can be ‘long’ or ‘wide’. A long data.frame will have all the response data in one long column the calibrator concentration, group and replicate labels in other columns.</p>
+<div id="manual-data-entry-of-oconnells-elisa-data" class="section level3">
+<h3>Manual data entry of O’Connell’s ELISA data</h3>
+<p>The following code shows how the O’Connell data may be entered manually in vector, or list, format then converted to a long data.frame. Later the long data.frame is converted to a wide one, which can be helpful for onscreen viewing or printing, or sharing data between R and other curve-fitting software such as GraphPad.</p>
+<pre class="r"><code># O&#39;Connell&#39;s ELISA data
+# Enter the 12 calibrator concentrations
+# Repeat sequence of known concentrations 3 times to correspond to 3 replicates
+conc &lt;- rep(c(0, 0, 3, 8, 23, 69, 206, 617, 1852, 5556, 16667, 50000), 3)
+# Optical Density measurements
+od &lt;- c(
+  # Replicate 1
+  0.100, 0.120, 0.120, 0.120, 0.130, 0.153, 0.195, 0.280, 0.433, 0.593,
+  0.823, 0.933,
+  
+  # Replicate 2
+  0.115, 0.110, 0.123, 0.118, 0.133, 0.160, 0.208, 0.305, 0.455, 0.668,
+  0.850, 1.078,
+  
+  # Replicate 3
+  0.118, 0.115, 0.108, 0.118, 0.158, 0.150, 0.218, 0.323, 0.490, 0.760,
+  0.973, 0.825)
+
+# Assign calibrator and replicate id just for easy identification
+rep &lt;- rep(c(1, 2, 3), each = 12) 
+calib &lt;- rep(c(&quot;B1&quot;, &quot;B2&quot;, paste(&quot;S0&quot;, seq(1:9), sep = &quot;&quot;), &quot;S10&quot;), 3) 
+
+# Combine vectors into a data.frame, &#39;ocon&#39;. 
+# We will call this data.frame repeatedly in the steps below
+ocon &lt;- data.frame(calib, conc, rep, od)
+
+# Print 1st 6 lines to console to check structure
+head(ocon)</code></pre>
+<pre><code>##   calib conc rep    od
+## 1    B1    0   1 0.100
+## 2    B2    0   1 0.120
+## 3   S01    3   1 0.120
+## 4   S02    8   1 0.120
+## 5   S03   23   1 0.130
+## 6   S04   69   1 0.153</code></pre>
+<pre class="r"><code># Or a more formally described structure:
+str(ocon)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    36 obs. of  4 variables:
+##  $ calib: Factor w/ 12 levels &quot;B1&quot;,&quot;B2&quot;,&quot;S01&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ conc : num  0 0 3 8 23 ...
+##  $ rep  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ od   : num  0.1 0.12 0.12 0.12 0.13 0.153 0.195 0.28 0.433 0.593 ...</code></pre>
+<pre class="r"><code># Save data as a .csv
+# File path: &quot;../&quot; = go up one directory
+# write.csv(ocon, file = &quot;../data/ocon.csv&quot;, row.names = FALSE, quote = FALSE)</code></pre>
+<div id="numerical-summaries" class="section level4">
+<h4>Numerical summaries</h4>
+<p>Let’s summarise the data by concentration to get a ‘feel’ for our data set and check for errors:</p>
+<pre class="r"><code># Mean response for concentration = 3
+# Notice how the full data.frame$variable is needed each time a variable is named 
+# The argument na.rm=TRUE tells R to drop any missing observations
+mean(ocon$od[ocon$conc == 3], na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.117</code></pre>
+<pre class="r"><code>sd(ocon$od[ocon$conc == 3], na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.007937254</code></pre>
+<pre class="r"><code># Mean by calibrator concentration in one shot
+ddply(ocon, .(conc), summarise, 
+      Mean = mean(od, na.rm = TRUE),
+      SD   = sd(od, na.rm = TRUE))</code></pre>
+<pre><code>##     conc      Mean          SD
+## 1      0 0.1130000 0.007211103
+## 2      3 0.1170000 0.007937254
+## 3      8 0.1186667 0.001154701
+## 4     23 0.1403333 0.015373137
+## 5     69 0.1543333 0.005131601
+## 6    206 0.2070000 0.011532563
+## 7    617 0.3026667 0.021594752
+## 8   1852 0.4593333 0.028746014
+## 9   5556 0.6736667 0.083644087
+## 10 16667 0.8820000 0.079956238
+## 11 50000 0.9453333 0.126950121</code></pre>
+<p>Let’s examine minima and maxima for each concentration to check for extreme values:</p>
+<pre class="r"><code>oconMinMax &lt;- ddply(ocon, .(conc), summarise,
+              n = length(na.omit(od)), 
+              Min = min(od, na.rm = TRUE), 
+              Max = max(od, na.rm = TRUE))
+
+oconMinMax</code></pre>
+<pre><code>##     conc n   Min   Max
+## 1      0 6 0.100 0.120
+## 2      3 3 0.108 0.123
+## 3      8 3 0.118 0.120
+## 4     23 3 0.130 0.158
+## 5     69 3 0.150 0.160
+## 6    206 3 0.195 0.218
+## 7    617 3 0.280 0.323
+## 8   1852 3 0.433 0.490
+## 9   5556 3 0.593 0.760
+## 10 16667 3 0.823 0.973
+## 11 50000 3 0.825 1.078</code></pre>
+<p>No glaring errors. We’ll examine the structure in more detail in the next 2 tutorials.</p>
+</div>
+</div>
+</div>
+<div id="transposing-a-data.frame" class="section level2">
+<h2>Transposing a data.frame</h2>
+<p>A wide, rather than long, format is nice for viewing and comparing calibrator replicates. Also, conversion between long and wide formats would be useful if one had to share data between R and other software such as GraphPad or a spreadsheet.</p>
+<p><strong>Prepare data set for GraphPad-type software:</strong></p>
+<pre class="r"><code># Reshape (aka transpose) long data set into wide format 
+oconWide &lt;- dcast(ocon, calib + conc ~ rep , value.var = &quot;od&quot;)
+
+# Fix the variable names
+names(oconWide)[3:5]  &lt;- paste(&quot;rep&quot;, names(oconWide[3:5]), sep = &quot;&quot;)
+# In this format, several runs could fit on one page. 
+oconWide</code></pre>
+<pre><code>##    calib  conc  rep1  rep2  rep3
+## 1     B1     0 0.100 0.115 0.118
+## 2     B2     0 0.120 0.110 0.115
+## 3    S01     3 0.120 0.123 0.108
+## 4    S02     8 0.120 0.118 0.118
+## 5    S03    23 0.130 0.133 0.158
+## 6    S04    69 0.153 0.160 0.150
+## 7    S05   206 0.195 0.208 0.218
+## 8    S06   617 0.280 0.305 0.323
+## 9    S07  1852 0.433 0.455 0.490
+## 10   S08  5556 0.593 0.668 0.760
+## 11   S09 16667 0.823 0.850 0.973
+## 12   S10 50000 0.933 1.078 0.825</code></pre>
+<pre class="r"><code># Limit the data to non-zeros and export it for later use in GraphPad
+# write.csv(oconWide[3:12, 2:5], file.path(data.path, &quot;ocon_GraphPad.csv&quot;), quote = FALSE, 
+#          row.names = FALSE, na = &quot; &quot;)</code></pre>
+<p><strong>Convert a wide data.frame to long format:</strong></p>
+<pre class="r"><code>oconLong &lt;- melt(oconWide, id = c(&quot;calib&quot;, &quot;conc&quot;))
+head(oconLong, 15)</code></pre>
+<pre><code>##    calib  conc variable value
+## 1     B1     0     rep1 0.100
+## 2     B2     0     rep1 0.120
+## 3    S01     3     rep1 0.120
+## 4    S02     8     rep1 0.120
+## 5    S03    23     rep1 0.130
+## 6    S04    69     rep1 0.153
+## 7    S05   206     rep1 0.195
+## 8    S06   617     rep1 0.280
+## 9    S07  1852     rep1 0.433
+## 10   S08  5556     rep1 0.593
+## 11   S09 16667     rep1 0.823
+## 12   S10 50000     rep1 0.933
+## 13    B1     0     rep2 0.115
+## 14    B2     0     rep2 0.110
+## 15   S01     3     rep2 0.123</code></pre>
+<pre class="r"><code># Rename &#39;variable&#39; to &#39;rep&#39; and &#39;value&#39; column to &#39;od&#39;
+names(oconLong)[c(2, 3)] &lt;- c(&#39;rep&#39;, &#39;od&#39;) 
+str(oconLong)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    36 obs. of  4 variables:
+##  $ calib: Factor w/ 12 levels &quot;B1&quot;,&quot;B2&quot;,&quot;S01&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ rep  : num  0 0 3 8 23 ...
+##  $ od   : Factor w/ 3 levels &quot;rep1&quot;,&quot;rep2&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ value: num  0.1 0.12 0.12 0.12 0.13 0.153 0.195 0.28 0.433 0.593 ...</code></pre>
+<p><a href="http://www.statmethods.net/">Quick-R</a> is a great resource for more details about <a href="http://www.statmethods.net/input/index.html">entering data</a> and <a href="http://www.statmethods.net/input/datatypes.html">R data types</a>.</p>
+<p>We have what we need to proceed to <a href="calib_tut3_variance_ocon.html">characterising the variance of the O’Connell data</a>. For more practice with data entry and wrangling, see <a href="calib_tut2_prep_elisa.html">data preparation for R’s ELISA data set</a>.</p>
+<br>
+<button type="button" class="btn">
+<a href="calib_tut3_variance_background.html"> Next: Characterising variance background »</a>
+</button>
+<!--
+<button type="button" class="btn"><a href="elisa.html"> Tutorial: Data preparation for R's ELISA &raquo;</a></button>
+-->
+<p><br></p>
+<div class="references">
+
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

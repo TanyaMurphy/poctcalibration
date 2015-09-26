@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Characterising Variance</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Characterising Variance</h1>
+</div>
+
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li>
+<a href="calib_overview.html">« Back to calibration overview</a>
+</li>
+<li>
+<a href="calib_tut3_variance_background.html">Background</a>
+</li>
+<li>
+<a href="calib_tut3_variance_ocon.html">O’Connell’s ELISA</a>
+</li>
+<li>
+<a href="calib_tut3_variance_elisa.html">R’s ELISA{gtools}</a>
+</li>
+</ul>
+<p><br></p>
+<div id="background" class="section level2">
+<h2>Background</h2>
+<p><em>in development</em></p>
+<p>This will be a short tutorial, but it can be skipped if you are confident the residuals from your calibration regression model will be <em>homoscedastic</em>. This may be the case if the mean variance of the response does not increase with increasing calibrator level, or if some variance-stabilising function of the response is conventionally and consistently used (and well-understood) for your test type.</p>
+<p>For the rest of us whose test responses are inherently or possibly <em>heteroscedastic</em>, some preliminary work can help with our later regression model choices.</p>
+<!--
+Characterising the variance of data set using ANOVA and variance regression:
+
+Pooled runs---those from when the technology was stable, but not necessarily collected under some formal performance study design
+
+-->
+<hr />
+<p><strong>Homoscedasticity</strong> (homoskedasticity; homogeneity of variance):</p>
+<p>An assumption of linear regression</p>
+<blockquote>
+<p>“At every value of <span class="math">\(x\)</span>, the variance of <span class="math">\(y\)</span> is the same!”</p>
+</blockquote>
+<p>   <span class="citation">(Kruschke 2011, 420)</span></p>
+<p>The opposite of <strong>heteroscedasticity</strong></p>
+<blockquote>
+<p>“In practice of course, … it will almost certainly be related to the expected response, i.e. the error will not be constant at all points on the curve. This non-constancy of error is referred to as heteroscedasticity and has important implications when fitting calibration functions to responses from standard series.”</p>
+</blockquote>
+<p>   <span class="citation">(Law et al. 2005, 173)</span></p>
+<hr />
+<!--
+
+Most commonly, the variance of the response increases with increasing response value. Some established test systems may have a built-in variance-stabilising model that delivers homoscedastic output, but the variance pattern had to be understood first. For test developers or others needing to make long-term decisions about calibration models, this tutorial will describe ways to characterise the pattern in the variance using data accumulated over many runs in the late stages of test development.
+
+Good, stable estimates of the variance model can only be obtained from a high number of replicates. Once the [test system] is technically stable, it is probably safe to assume that the variance pattern is fairly constant between runs and over time (even if the curve shape varies moderately). Hence, historical and preliminary runs can be used [@Dunn2013]. That is, something can be learned from gradually accumulating data from samples measured before the big, systematic data collection for the baseline/master calibration curve. Any samples measured on a fairly stable system (with no known major errors) should be recorded along with the experimental conditions (optical reader characteristics, substrate characteristics, reagent batch and age, etc). These pooled data will contribute to the variance characterisation---don't overwrite these data!
+
+The data can be pooled even while [relative substrate and reagent concentrations are adjusted]. The absolute values of the curve model parameters between runs over the course of late-stage test development may change, but the direction and relative magnitude of the response mean-variance relationship should not if the signal type and reader technology is constant. There are methods that separate the variance into within- and between-group components; therefore, the relationship between magnitude of the response and variance of the response can be estimated without worrying about between-run differences or the curve model parameters describing the signal to analyte concentration relationship. Hence, we group results by calibrator level---using calibrator concentration as an ordered factor, unconcerned with its absolute value.
+
+### Variance and residuals
+
+The calculation for the variance for a single mean from a single group is straightforward. Variance is the *mean* squared difference between each individual result and the group mean---that is, the *sum of squares* divided by sample size (or *n - 1* for sample variance by some conventions). When factors or other variables are included because they explain some of the variability in the observed responses, the unexplained variance is of interest. In that case, the differences from the adjusted mean response are usually called the *residuals* or errors. ANalysis Of VAriance (ANOVA) is the traditional way to perform these calculations. 
+
+### Pooled variance from ANOVA
+
+In traditional assay data collection methods, getting good estimate of variance can be challenging. We cannot get precise estimates from any one run since we have only two replicates per run per concentration. Also, probability theory suggests we cannot have a lot of confidence in the accuracy of the point estimate. Even a large number of replicates from one run may not be representative of runs for this system in general. Different calibrator levels cannot be grouped since we suspect variance changes with concentration---the original reason for this step. 
+
+Hence, we will group, or *pool*, the runs for each calibrator level. (Remember: we treat calibrator concentration as an ordered factor, ignoring the absolute concentration value.) We can get the mean squared error (i.e. variance) for the residuals from an ANOVA analysis or the residual standard error from a regression (same underlying calculations). ANOVA is the traditionally recommended method and delays the need to understand group effects. We are not interested in an effect estimate for each run (at least not now).
+
+We must include the run variable in the ANOVA model as a factor. As is, `plate` is numerical and would be treated as a continuous variable, which would not make sense in this case. Therefore, we use the newly created `run` factor variable. You will know if you have accidentally included your run variable as a continuous variable if it is associated with only 1 degree of freedom (see output below).
+
+*In prediction applications the **standard deviation of the standard deviation** is very important.* In ANOVA and least-squares regression, this is the *residual standard error* (RSE). `Residual standard error` and `Residuals:Mean Sq` in the two alternative ANOVA outputs are equivalent: RSE is the square root of mean squared error (MSE) of the residuals. [And MSE is synonymous with sample variance.]
+
+### Quality of the variance estimate
+
+As with all estimates, we should question whether or not the sample is likely to be a good reflection of the 'truth' or at least reflect many other sets of observations from the same system.
+
+A 95% confidence interval could serve as a measure of the quality of the variance estimate, or our confidence in the estimate (a pragmatic, not formal definition of confidence limits). The standard deviation, rather than variance, is easier to work with since it is on the same scale as the original observations, [changing linearly]. The terminology may be a little confusing for those more familiar with the standard error *of the mean*. Whereas standard error of the mean is affected by sample size, [residual standard error is not]. This an especially important distinction in test characterisation. We will not use the standard error *of the mean* as much as in typical scientific studies because we are interested in expected variability not central tendency. 
+
+The SD of the SD or variance estimate is so often ignored in classical analyses that it can be difficult to find a built-in function for it in statistical packages. In simple cases, it is easy to calculate if you are comfortable making the assumption that sample variance estimates follow a chi-square distribution (http://www.stat.purdue.edu/~tlzhang/stat511/chapter7_4.pdf). With small groups of data---especially 2 (!) replicates by run and concentration---the variance estimate for any given group would not be expected to be very stable. This can be represented by the width of the **confidence interval for its standard deviation**.
+
+The Immunoassay Handbook [@Dunn2013] recommends regressing the log of the variance in the response on log of group mean response using a power function.
+
+#### Modelling the variance in the signal {#cc-var}
+
+* * * * 
+**Outline** (temporary)
+
+- From the preliminary data, estimate the variance function (roughly):
+
+    1. Do the data, with respect to mean signal by level (ranked, untransformed), appear to be homoscedastic (dispersion of the individual points around the mean fairly constant from one level to the next) or heteroscedastic (in particular here, wider dispersion with increasing mean)?
+
+    2. A function of $x$ or $y$?
+        
+        - Philosophical reasons for $x$ vs $y$?   
+
+        - If the underlying model is sigmoidal, but the asymptotes are not known, is either $x$ or $y$ better?  
+
+        - Is the increasing dispersion thought to be due to the emission or capture of the signal, or the concentration or reactions generating the signal? Maybe the former argues for $y$ and the latter argues for $x$  
+
+        - Ultimately, the curve is to be used to predict $x$ when we have $y$. Does that argue for $y$?^[I guess I am leaning toward $y$, but not very confident yet]  
+
+    3. Rough shape and magnitude:
+
+        - Does the variance increase a little or a lot?
+
+        - Does it increase at a constant or growing rate?
+
+        - Do you prefer to think about it in terms of variance or standard deviation?^[I find SD easier to picture]
+
+    4. Does your software/function make it easy to model the variance explicitly (e.g. BUGS) or does the syntax require providing a ‘weight’?
+
+* * * *
+
+
+##### Purpose
+
+It is very common in ELISA methods for the variance to increase with increasing mean response. The *Coefficient of Variation (CV)* is traditionally used in clinical chemistry as a variance-stabilising summary statistic when the variance (and standard deviation) increases with increasing mean response: *standard deviation (SD)* of the response divided by the *mean* response by calibrator group (often expressed as a percent). The CV is a statistic that can nicely summarise the overall variability in the signal *if* the standard deviation increases with mean response [at a constant rate]. If the variance is constant, however, the CV will decrease with concentration---not producing a good overall summary statistic---and simply the (untransformed) SD will be a better overall descriptor of the variability in the response. A smoothed relationship of the variance by increasing mean response is called a *variance function*.
+
+Beyond descriptive purposes, we explore the response variance (by calibrator group) in anticipation of the regression analysis used to estimate the calibration curve---whether linear or non-linear. Unless otherwise stated, least squares regression methods assume 1) the variance is normally distributed about the regression line, which is usually the case with immunoassay data, and 2) is of constant magnitude across the observed range of *x* (i.e. *homoscedastic*), which, as we just discussed, is often not the case (i.e. suffers from one type of *heteroscedasticity*).  
+
+Since the least squares regression algorithm tries to minimize the squared distances to the regression line, higher response observations may have undue influence on the estimation of the regression line when they have a large variance. In that case, we will want to restore a more even influence of all calibrator levels by specifying a variance function that correct for this assumption violation. Another way to achieve more eveness is to specify weights to each observation by concentration or response (e.g. *1/X*, *1/X^2^*, *1/Y*, etc.). Weighting often does not change the curve-shape parameters (e.g. slope) very much, but it can have a large influence on imprecision statistics (e.g. standard error). If using curve-fitting software that does not allow a user-supplied variance function or weight, use the closest option.  
+
+Note that to get stable estimates of *CV* or the variance function, a lot of data is needed. Technically, variance can be calculated from 3 replicates, but the standard error for this estimate would be so wide, reflecting the high probability of getting a very different estimate if you repeated the exercise. Theoretically, however, the variance function should not change much from reader to reader, day to day or reagent batch to batch---that is, it should be a property of the test system as a whole so data from replicates collected over time can be pooled. This may be started prior to data collection for the initial master curve study (and then verified or updated).  
+
+### R notes
+
+We still don't want to make assumptions about the shape of the calibration curve; that is, the  specific relationship between response and calibrator concentration, because when we have heteroscedasticity, the regression estimates will be bias until we model the variance structure better. Catch 22? No, we can model the variance as a function of mean response by calibrator level. We will assume variance increases as a smooth function of increasing response. 
+
+Working with factors---as opposed to integer or character codes---can be useful, but tricky; see [Patrick Burns' R Inferno](http://www.burns-stat.com/pages/Tutor/R_inferno.pdf), section 8.2, for more help with factors. 
+
+-->
+<div class="references">
+<h2>References</h2>
+<p>Kruschke, John K. 2011. <em>Doing Bayesian Data Analysis: A Tutorial with R and BUGS</em>. Academic Press, Elsevier, USA. <a href="http://www.indiana.edu/~kruschke/DoingBayesianDataAnalysis/" class="uri">http://www.indiana.edu/~kruschke/DoingBayesianDataAnalysis/</a>.</p>
+<p>Law, Brian, Clive G Copley, Robert A Biddlecombe, Michael J Warwick, Michael D Malone, and William J Jenner. 2005. <em>Immunoassay: A Practical Guide</em>. Edited by Brian Law. e-book. Taylor &amp; Francis.</p>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

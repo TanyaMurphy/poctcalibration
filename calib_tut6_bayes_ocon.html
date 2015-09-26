@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Bayesian analysis</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_overview.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep_background.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance_background.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve_background.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision_background.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Bayesian analysis</h1>
+</div>
+
+
+<div id="data-analysis-overview" class="section level2">
+<h2>Data analysis overview</h2>
+<p>In this tutorial, we will use Markov Chain Monte Carlo (MCMC) methods and Bayesian inference to estimate the variance model and the curve function parameters in one step. R will send the data and instructions to Bayesian software, WinBUGS, and then retreive the results for display using the R package, <code>R2WinBUGS</code>. If you have not already installed WinBUGS, the software download and instructions are found <a href="http://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/">here</a>. (Very similar implementations are possible with OpenBUGS or JAGS and their respective R packages.)</p>
+</div>
+<div id="preparatory-steps" class="section level2">
+<h2>Preparatory steps</h2>
+<p>First we reload the O’Connell ELISA data as in previous tutorials:</p>
+<pre class="r"><code># O&#39;Connell ELISA data 
+ocon &lt;- read.csv(file.path(data.path, &quot;ocon.csv&quot;), header = TRUE)
+head(ocon)</code></pre>
+<pre><code>##   conc rep    od
+## 1    0   1 0.100
+## 2    0   1 0.120
+## 3    3   1 0.120
+## 4    8   1 0.120
+## 5   23   1 0.130
+## 6   69   1 0.153</code></pre>
+<pre class="r"><code># Simple 4pl model: Constant variance (as standard deviation, sigma) ----
+# Need number of observations
+J &lt;- nrow(ocon)
+# all the data minus the rep variable
+data &lt;- c(J = J, as.list(ocon[ , c(1, 3)]))
+#str(data)
+
+# Initial values
+# Could be initial values from the classical model
+#inits0 &lt;- as.numeric(y.coef)
+# Or simply choose reasonable values
+inits1 &lt;- c(1, 0.1, 3000, -1, 0.002)
+names(inits1) &lt;- c(&quot;beta1&quot;, &quot;beta2&quot;, &quot;beta3&quot;, &quot;beta4&quot;, &quot;var&quot;)
+# If running more than 1 chain, need a set of initial values for each chain
+# Maybe as a function such as adding randomness
+# inits2 &lt;- 
+# inits3 &lt;- 
+# As with other BUGS inputs, format as a list
+inits &lt;- list(inits1
+              #, inits2, inits3
+              )
+
+# Parameters to monitor (only need to monitor betas and sigma this time)
+parameters &lt;- c(#&quot;x0&quot;, 
+                &quot;beta1&quot;, &quot;beta2&quot;, &quot;beta3&quot;, &quot;beta4&quot;, &quot;sigma&quot;
+                )
+
+model1 &lt;- function(){
+    for (i in 1:J){
+        mu[i] &lt;- beta2 + (beta1 - beta2)/(1 + pow(conc[i] / beta3, beta4))
+        od[i] ~ dnorm(mu[i], tau)
+        # Original code:
+        # Is this right? sigma[i] but one tau?
+        # sigma[i] &lt;- 1.0/(sqrt(tau))
+    }
+    # Should not allow betas 1-3 to be &lt;= 0 
+    # (we know that even at x=0, y ne 0 unless it was transformed)
+    # beta1 and beta2 had dnorm(0, 0.001), but a mean of zero is not
+    # realistic. Are dgammas OK for beta1 and beta2? Or log-normal?
+    # Also, beta1 must be &gt; beta2. Could this constraint be added?
+    beta1 ~ dgamma(0.001,0.001)
+    beta2 ~ dgamma(0.001,0.001)
+    beta3 ~ dgamma(0.001,0.001)
+    # We know that with an immunometric assay beta4 must be &lt;= 0.     
+    # Should it be specified like this?
+    beta4 ~ dunif(-10,0)
+    # Precision, tau, cannot be negative
+    # tau ~ dgamma(0.0001,0.001)
+    # Would like to monitor sigma rather than tau:
+    tau &lt;- 1/var
+    var ~ dgamma(0.001,0.001)
+    sigma &lt;- sqrt(var)
+}
+write.model(model1)
+bugs.out &lt;- bugs(data, inits = inits, parameters, &quot;model.bug&quot;,
+                 n.chains = 1, n.iter = 2000, 
+                 bugs.directory=&quot;c:/Program Files/WinBUGS14/&quot;
+                 , working.directory=getwd()
+                 , debug = F
+)
+# Parameter posterior distributions
+mcmc.out1 &lt;- as.mcmc.list(bugs.out)
+summary(mcmc.out1, q = c(0.025, 0.975))</code></pre>
+<pre><code>## 
+## Iterations = 1001:2000
+## Thinning interval = 1 
+## Number of chains = 1 
+## Sample size per chain = 1000 
+## 
+## 1. Empirical mean and standard deviation for each variable,
+##    plus standard error of the mean:
+## 
+##               Mean         SD   Naive SE Time-series SE
+## beta1       1.0195   0.049620  0.0015691      0.0056799
+## beta2       0.1177   0.012711  0.0004020      0.0007194
+## beta3    3030.2660 574.374302 18.1633102     56.6928296
+## beta4      -0.8971   0.104316  0.0032988      0.0091869
+## deviance -118.6319   3.777990  0.1194705      0.2292118
+## sigma       0.0467   0.006275  0.0001984      0.0002871
+## 
+## 2. Quantiles for each variable:
+## 
+##                2.5%      97.5%
+## beta1       0.93860    1.14005
+## beta2       0.09136    0.14160
+## beta3    2149.77500 4454.65000
+## beta4      -1.11515   -0.71477
+## deviance -123.40250 -108.79750
+## sigma       0.03671    0.06112</code></pre>
+<pre class="r"><code># Nice plots
+xyplot(mcmc.out1)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model1-1.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>densityplot(mcmc.out1)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model1-2.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>#autocorr.plot(mcmc.out1) # not super clear (remember how to interpret)</code></pre>
+<pre class="r"><code># Simple 4pl model: Constant variance (as standard deviation, sigma) ----
+# Everything is the same as model 1 except the priors on betas 1--3
+model2 &lt;- function(){
+    for (i in 1:J){
+        mu[i] &lt;- beta2 + (beta1 - beta2)/(1 + pow(conc[i] / beta3, beta4))
+        od[i] ~ dnorm(mu[i], tau)
+        # Original code:
+        # Is this right? sigma[i] but one tau?
+        # sigma[i] &lt;- 1.0/(sqrt(tau))
+    }
+    # Should not allow betas 1-3 to be &lt;= 0 
+    # (we know that even at x=0, y ne 0 unless it was transformed)
+    # beta1 and beta2 had dnorm(0, 0.001), but a mean of zero is not
+    # realistic. Are dgammas OK for beta1 and beta2? Or log-normal?
+    # Also, beta1 must be &gt; beta2. Could this constraint be added?
+    beta1 ~ dunif(0, 10)
+    beta2 ~ dunif(0, 10)
+    beta3 ~ dunif(0, 100000) # we really don&#39;t know a priori...
+    # We know that with an immunometric assay beta4 must be &lt;= 0.     
+    # Should it be specified like this?
+    beta4 ~ dunif(-10,0)
+    # Precision, tau, cannot be negative
+    # tau ~ dgamma(0.0001,0.001)
+    # Would like to monitor sigma rather than tau:
+    tau &lt;- 1/var
+    var ~ dgamma(0.001,0.001)
+    sigma &lt;- sqrt(var)
+}
+write.model(model2)
+bugs.out &lt;- bugs(data, inits = inits, parameters, &quot;model.bug&quot;,
+                 n.chains = 1, n.iter = 2000, 
+                 bugs.directory=&quot;c:/Program Files/WinBUGS14/&quot;
+                 , working.directory=getwd()
+                 , debug = F
+)
+# Parameter posterior distributions
+mcmc.out2 &lt;- as.mcmc.list(bugs.out)
+summary(mcmc.out2, q = c(0.025, 0.975))</code></pre>
+<pre><code>## 
+## Iterations = 1001:2000
+## Thinning interval = 1 
+## Number of chains = 1 
+## Sample size per chain = 1000 
+## 
+## 1. Empirical mean and standard deviation for each variable,
+##    plus standard error of the mean:
+## 
+##                Mean         SD   Naive SE Time-series SE
+## beta1       1.05825   0.052944  0.0016742      0.0062994
+## beta2       0.11686   0.013033  0.0004121      0.0006617
+## beta3    3552.03700 697.234982 22.0485061     83.5677140
+## beta4      -0.83827   0.099842  0.0031573      0.0087420
+## deviance -119.09920   3.438055  0.1087208      0.1885714
+## sigma       0.04691   0.006216  0.0001966      0.0002445
+## 
+## 2. Quantiles for each variable:
+## 
+##                2.5%      97.5%
+## beta1       0.96809    1.17000
+## beta2       0.08963    0.14333
+## beta3    2458.75000 5136.47500
+## beta4      -1.04103   -0.66819
+## deviance -123.40000 -110.20000
+## sigma       0.03701    0.06192</code></pre>
+<pre class="r"><code># Nice plots
+xyplot(mcmc.out2)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model2-1.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>densityplot(mcmc.out2)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model2-2.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>#autocorr.plot(mcmc.out2) # not super clear (remember how to interpret)</code></pre>
+<pre class="r"><code># Heteroscedastic 4pl model: variance changes as a function of y ----
+# Data is the same as model 1 and 2
+# Initial values for variance model change
+# Chose reasonable values
+inits1 &lt;- c(1, 0.1, 3000, -1, 0.002, 1.2)
+names(inits1) &lt;- c(&quot;beta1&quot;, &quot;beta2&quot;, &quot;beta3&quot;, &quot;beta4&quot;, &quot;sigma.sq&quot;, &quot;theta&quot;)
+# If running more than 1 chain, need a set of initial values for each chain
+# Maybe as a function such as adding randomness
+# inits2 &lt;- 
+# inits3 &lt;- 
+# As with other BUGS inputs, format as a list
+inits &lt;- list(inits1
+              #, inits2, inits3
+              )
+
+# Parameters to monitor (only need to monitor betas and sigma this time)
+parameters &lt;- c(#&quot;x0&quot;, 
+                &quot;beta1&quot;, &quot;beta2&quot;, &quot;beta3&quot;, &quot;beta4&quot;, &quot;sigma&quot;, &quot;theta&quot;
+                )
+model3 &lt;- function(){
+    for (i in 1:J){
+        mu[i] &lt;- beta2 + (beta1 - beta2)/(1 + pow(conc[i] / beta3, beta4))
+        # Tau changes
+        od[i] ~ dnorm(mu[i], tau[i])
+        tau[i] &lt;- 1/var[i]
+        # same variance model from previous tutorials 
+        var[i]  &lt;- sigma.sq * pow(mu[i], 2*theta)
+    }
+    # Should not allow betas 1-3 to be &lt;= 0 
+    # (we know that even at x=0, y ne 0 unless it was transformed)
+    # beta1 and beta2 had dnorm(0, 0.001), but a mean of zero is not
+    # realistic. Are dgammas OK for beta1 and beta2? Or log-normal?
+    # Also, beta1 must be &gt; beta2. Could this constraint be added?
+    beta1 ~ dunif(0, 10)
+    beta2 ~ dunif(0, 10)
+     # reduced the upper limit x10 because would not converge
+    beta3 ~ dunif(0, 10000)
+    # We know that with an immunometric assay beta4 must be &lt;= 0.     
+    # Should it be specified like this?
+    beta4 ~ dunif(-10,0)
+    # Precision, tau, cannot be negative
+    # Would like to monitor sigma rather than tau or var, but advice on priors
+    # for variance are more common. And for consistency with previous constant
+    # variance models (model2):
+    sigma.sq ~ dgamma(0.001,0.001)
+    sigma &lt;- sqrt(sigma.sq)
+    # Could use this prior for theta
+    theta ~ dunif(0, 5)
+    # Or could give stronger prior belief to constant variance (ie. theta = 0)
+    # and not exclude possibility of decreasing variance...
+    # theta ~ dnorm(0, 0.1)
+}
+write.model(model3)
+bugs.out &lt;- bugs(data, inits = inits, parameters, &quot;model.bug&quot;,
+                 n.chains = 1, n.iter = 2000, 
+                 bugs.directory=&quot;c:/Program Files/WinBUGS14/&quot;
+                 , working.directory=getwd()
+                 , debug = F
+)
+# Parameter posterior distributions
+mcmc.out3 &lt;- as.mcmc.list(bugs.out)
+summary(mcmc.out3, q = c(0.025, 0.975))</code></pre>
+<pre><code>## 
+## Iterations = 1001:2000
+## Thinning interval = 1 
+## Number of chains = 1 
+## Sample size per chain = 1000 
+## 
+## 1. Empirical mean and standard deviation for each variable,
+##    plus standard error of the mean:
+## 
+##               Mean          SD    Naive SE Time-series SE
+## beta1       1.1784    0.103901  0.00328563      0.0177734
+## beta2       0.1128    0.002399  0.00007587      0.0001383
+## beta3    5346.4140 1576.322149 49.84768316    266.3650059
+## beta4      -0.7278    0.048506  0.00153389      0.0067171
+## deviance -183.0511    3.422363  0.10822463      0.2283715
+## sigma       0.1137    0.028573  0.00090354      0.0025564
+## theta       1.2694    0.145260  0.00459353      0.0126186
+## 
+## 2. Quantiles for each variable:
+## 
+##                2.5%     97.5%
+## beta1       0.97358    1.3860
+## beta2       0.10820    0.1179
+## beta3    2701.62500 8837.5250
+## beta4      -0.83270   -0.6501
+## deviance -187.90000 -175.0975
+## sigma       0.07042    0.1806
+## theta       0.99062    1.5532</code></pre>
+<pre class="r"><code># Nice plots
+xyplot(mcmc.out3)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model3-1.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>densityplot(mcmc.out3)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model3-2.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>#autocorr.plot(mcmc.out2) # not super clear (remember how to interpret)</code></pre>
+<pre class="r"><code># Heteroscedastic 4pl model: variance changes as a function of y ----
+# Everything is the same as model3 except prior for theta
+
+model4 &lt;- function(){
+    for (i in 1:J){
+        mu[i] &lt;- beta2 + (beta1 - beta2)/(1 + pow(conc[i] / beta3, beta4))
+        # Tau changes
+        od[i] ~ dnorm(mu[i], tau[i])
+        tau[i] &lt;- 1/var[i]
+        # same variance model from previous tutorials 
+        var[i]  &lt;- sigma.sq * pow(mu[i], 2*theta)
+    }
+    # Should not allow betas 1-3 to be &lt;= 0 
+    # (we know that even at x=0, y ne 0 unless it was transformed)
+    # beta1 and beta2 had dnorm(0, 0.001), but a mean of zero is not
+    # realistic. Are dgammas OK for beta1 and beta2? Or log-normal?
+    # Also, beta1 must be &gt; beta2. Could this constraint be added?
+    beta1 ~ dunif(0, 10)
+    beta2 ~ dunif(0, 10)
+     # reduced the upper limit x10 because would not converge
+    beta3 ~ dunif(0, 10000)
+    # We know that with an immunometric assay beta4 must be &lt;= 0.     
+    # Should it be specified like this?
+    beta4 ~ dunif(-10,0)
+    # Precision, tau, cannot be negative
+    # Would like to monitor sigma rather than tau or var, but advice on priors
+    # for variance are more common. And for consistency with previous constant
+    # variance models (model2):
+    sigma.sq ~ dgamma(0.001,0.001)
+    sigma &lt;- sqrt(sigma.sq)
+    # Could use this prior for theta
+    # theta ~ dunif(0, 5)
+    # Or could give stronger prior belief to constant variance (ie. theta = 0)
+    # and not exclude possibility of decreasing variance...
+    theta ~ dnorm(0, 0.1) 
+}
+write.model(model4)
+bugs.out &lt;- bugs(data, inits = inits, parameters, &quot;model.bug&quot;,
+                 n.chains = 1, n.iter = 2000, 
+                 bugs.directory=&quot;c:/Program Files/WinBUGS14/&quot;
+                 , working.directory=getwd()
+                 , debug = F
+)
+# Parameter posterior distributions
+mcmc.out4 &lt;- as.mcmc.list(bugs.out)
+summary(mcmc.out4, q = c(0.025, 0.975))</code></pre>
+<pre><code>## 
+## Iterations = 1001:2000
+## Thinning interval = 1 
+## Number of chains = 1 
+## Sample size per chain = 1000 
+## 
+## 1. Empirical mean and standard deviation for each variable,
+##    plus standard error of the mean:
+## 
+##               Mean         SD    Naive SE Time-series SE
+## beta1       1.1535    0.10411  0.00329214      0.0184574
+## beta2       0.1131    0.00241  0.00007622      0.0001588
+## beta3    4975.0440 1584.67990 50.11197839    325.6193965
+## beta4      -0.7387    0.05024  0.00158876      0.0074612
+## deviance -182.6329    3.81619  0.12067854      0.3229936
+## sigma       0.1174    0.03508  0.00110945      0.0057294
+## theta       1.2807    0.16624  0.00525709      0.0284878
+## 
+## 2. Quantiles for each variable:
+## 
+##                2.5%     97.5%
+## beta1       0.99095    1.3781
+## beta2       0.10840    0.1181
+## beta3    2811.40000 8608.3000
+## beta4      -0.83910   -0.6527
+## deviance -188.20000 -173.6950
+## sigma       0.06959    0.2094
+## theta       0.96998    1.6453</code></pre>
+<pre class="r"><code># Nice plots
+xyplot(mcmc.out4)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model4-1.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>densityplot(mcmc.out4)</code></pre>
+<p><img src="calib_tut6_bayes_ocon_files/figure-html/model4-2.png" title="" alt="" width="672" /></p>
+<pre class="r"><code>#autocorr.plot(mcmc.out2) # not super clear (remember how to interpret)</code></pre>
+<p>Model is slower to converge with this prior for theta, but estimates are similar.</p>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>In this tutorial, we have …</p>
+<div class="references">
+
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles from 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>The R tutorials</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+</style>
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">The R tutorials</h1>
+</div>
+
+
+<p>All of the data analysis and statistical estimation procedures required for calibration and characterisation of test performance are available in the <a href="http://www.r-project.org/">R statistical package</a>. R is free, open-source software used in myriad academic and business applications.</p>
+<p>The subject of these tutorials is <strong>statistical methods used to characterise a test’s response-concentration relationship<!--, validate test performance and prepare stored calibration curves--></strong> —an important part of POCT development. Many of these tutorials will apply to traditional plate-based assays as well, but future tutorials will build upon these procedures to cover special considerations for point-of-care tests.</p>
+<!--
+*Performance* includes 1) average or long-run reliability over multiple measurements, conditions and instruments, 2) agreement with a reference method, and 3) associated descriptors of the analytical measurement range (AMR) and clinically reportable range (CRR). Estimates of uncertainty for individual measurements have been neglected in the literature and we examine some issues and candidate methods for these. (These designs and analyses are intended for test developers in pre-market phase or preparation for routine use. User *verification* is well-described elsewhere.)
+-->
+<hr />
+<ol style="list-style-type: decimal">
+<li><a href="over_tut1_software.html">R software installation guide</a></li>
+</ol>
+<!--**Calibration**-->
+<ol start="2" style="list-style-type: decimal">
+<li><p><strong>Data preparation:</strong> <a href="calib_tut2_prep_bakground.html">Background</a>, <a href="calib_tut2_prep_data_sets.html">Overview of the immunoassay data sets</a>, <a href="calib_tut2_prep_ocon.html">O’Connell’s ELISA data</a>, <a href="calib_tut2_prep_elisa.html">R’s gtools ELISA data</a></p></li>
+<li><p><strong>Characterisation of response variance:</strong> <a href="calib_tut3_variance_background.html">Background</a>, <a href="calib_tut3_variance_ocon.html">O’Connell data</a>, <a href="calib_tut3_variance_elisa.html">R’s ELISA</a></p></li>
+<li><p><strong>Curve-fitting:</strong> <a href="calib_tut4_curve_background.html">Background</a>, <a href="calib_tut4_curve_ocon.html">O’Connell’s data</a>, <a href="calib_tut4_curve_elisa.html">R’s ELISA</a></p></li>
+<li><p><strong>Concentration estimation and precision statistics:</strong> <a href="calib_tut5_precision_background.html">Background</a>, <a href="calib_tut5_precision_ocon.html">O’Connell’s data</a>, <a href="calib_tut5_precision_elisa.html">R’s ELISA</a></p></li>
+</ol>
+<!--
+
+*Performance: Estimating Test Accuracy*
+
+6) Reliability (Precision) Studies - [Background](../reliability/tut6_reliabilty/background.html) - [Design Options (Simulations)](../reliability/tut6_reliabilty/design_simulations.html) - [Data Analysis](../reliability/tut6_reliabilty/analysis.html) 
+
+7) Special Considerations for POCT - [Master and stord curves](../reliability/tut7_scale/the_poct_case.html) - [Planning adjusters and software updates](../reliability/tut7_scale/adjusters.html)
+
+8) Agreement Studies - [Background](../agree/tut8_agree/background.html) - [Agreement Analysis (Bland-Altman)](../agree/tut8_agree/tut8_agree.html)
+
+*Reporting: Scientific Publication and Package Inserts*
+
+9) Pulling it all together - [Publication Quality Tables and Figures](../appendices/tut9_wrap/better_tables_and_plots.html) - [Manufacturer's Claims](../appendices/tut9_wrap/manufacturers_claims.html) - [Instructions to Users](../appendices/tut9_wrap/user_instructions.html)
+
+-->
+<br>
+<button type="button" class="btn">
+<a href="over_tut1_software.html"> Next: Software installation guide »</a>
+</button>
+<!--
+<button type="button" class="btn"><a href="../calibration/calibLit.html"> Skip the software tutorial and go to: Calibration Literature Review &raquo;</a></button>
+-->
+<p><br></p>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

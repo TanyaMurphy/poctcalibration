@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Characterising Variance</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+
+    .table {
+
+    width: 50%;
+
+}
+
+</style>
+
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Characterising Variance</h1>
+</div>
+
+
+<!-- Section tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li>
+<a href="calib_overview.html">« Back to calibration overview</a>
+</li>
+<li>
+<a href="calib_tut3_variance_background.html">Background</a>
+</li>
+<li>
+<a href="calib_tut3_variance_ocon.html">O’Connell’s ELISA</a>
+</li>
+<li>
+<a href="calib_tut3_variance_elisa.html">R’s ELISA{gtools}</a>
+</li>
+</ul>
+<p><br></p>
+<div id="modeling-the-variability-in-the-oconnell-elisa-data" class="section level2">
+<h2>Modeling the variability in the O’Connell ELISA data</h2>
+<p>Before modeling the shape of the calibration curve, we will estimate the response-error relationship (RER). From what is generally known about ELISA data and given the descriptive analysis of the O’Connell data so far, we can be reasonably sure that these data are heteroscedastic. The variability of the data seems to increase with increasing response. Ignoring the heteroscedasticity may result in the regression estimates being biased. Importantly, estimates of the working range of the immunoassay, estimates of uncertainty around the calibration curve or around the concentration estimates for new samples will be biased. Thus we will arrive at a final calibration model through a multi-step approach beginning with the estimation of the RER.</p>
+<!--- prep R environment --->
+<p><strong>Import and review the structure of our <code>ocon</code> data set:</strong></p>
+<pre class="r"><code># ------ Import ocon.csv ---
+# An alternative syntax for file paths (especially useful when paths are long)
+data.path &lt;- &quot;../data&quot; 
+ocon &lt;- read.csv(file.path(data.path, &quot;ocon.csv&quot;), header = TRUE, stringsAsFactors = FALSE)
+# Check 
+str(ocon)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    36 obs. of  3 variables:
+##  $ conc: int  0 0 3 8 23 69 206 617 1852 5556 ...
+##  $ rep : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ od  : num  0.1 0.12 0.12 0.12 0.13 0.153 0.195 0.28 0.433 0.593 ...</code></pre>
+<p>Based on general experience with ELISA data, it has been recommended to assume the response (od) follows a normal distribution, <span class="math">\(N(mean_i, var_i)\)</span>, at the <span class="math">\(i^{th}\)</span> concentration level <span class="citation">(O’Connell, Belanger, and Haaland 1993)</span>.</p>
+<p><strong>Summarise the data into a table of means and variance by concentration:</strong></p>
+<pre class="r"><code># Mean, var and SD
+ocon.sum &lt;- ddply(ocon, .(conc), summarise, 
+                n = length(na.omit(od)),
+                mean.od = mean(od, na.rm = TRUE),
+                var.od =var(od, na.rm = TRUE))
+ocon.sum</code></pre>
+<pre><code>##     conc n   mean.od         var.od
+## 1      0 6 0.1130000 0.000052000000
+## 2      3 3 0.1170000 0.000063000000
+## 3      8 3 0.1186667 0.000001333333
+## 4     23 3 0.1403333 0.000236333333
+## 5     69 3 0.1543333 0.000026333333
+## 6    206 3 0.2070000 0.000133000000
+## 7    617 3 0.3026667 0.000466333333
+## 8   1852 3 0.4593333 0.000826333333
+## 9   5556 3 0.6736667 0.006996333333
+## 10 16667 3 0.8820000 0.006393000000
+## 11 50000 3 0.9453333 0.016116333333</code></pre>
+</div>
+<div id="variance-regression" class="section level2">
+<h2>Variance regression</h2>
+<p>With our estimates for mean response and variance of the response for each calibrator (known concentration) group, we can look at the relationship between them. The literature generally recommends starting with a power function, e.g. <span class="citation">(Dunn and Wild 2013)</span>:</p>
+<p><span class="math">\[Var(y) = intercept * Mean(y)^{theta}\]</span></p>
+<p>This function can be linearised by taking the logarithm of each side:</p>
+<p><span class="math">\[log(Var(y)) = log(intercept) + theta * log(Mean(y))\]</span></p>
+<p>Now we have a linear equation with familiar parameters, intercept and slope.</p>
+<pre class="r"><code># Variance regression uses log(variance) by log(mean response)
+ocon.sum$log.mean.od &lt;- log(ocon.sum$mean.od)
+ocon.sum$log.var.od &lt;- log(ocon.sum$var.od)
+
+# Variance regression using linear regression function, lm()
+var.reg &lt;- lm(log.var.od ~ log.mean.od, data = ocon.sum)
+summary(var.reg)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log.var.od ~ log.mean.od, data = ocon.sum)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -2.9070 -0.4824  0.1476  0.6819  1.7686 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)  -4.2408     0.7383  -5.744 0.000278
+## log.mean.od   2.9933     0.4808   6.226 0.000154
+## 
+## Residual standard error: 1.276 on 9 degrees of freedom
+## Multiple R-squared:  0.8116, Adjusted R-squared:  0.7906 
+## F-statistic: 38.76 on 1 and 9 DF,  p-value: 0.000154</code></pre>
+<pre class="r"><code>theta &lt;- coef(var.reg)[[2]]</code></pre>
+<p>The variance regression results say that for every 1 unit increase log(mean.response) increase, log(variance) increases about 3 times; this is our estimate for <span class="math">\(theta\)</span>. On the untransformed scale, the relationship is multiplicative. For example, as mean response doubles from 0.3 to 0.6, variance goes from 0.00039 to 0.0031 or about an 8-fold increase—which is also obtained from 2<sup>3</sup> = 8. This relative change holds true for each mean response (in the observed range).</p>
+<p>Let’s plot it:</p>
+<pre class="r"><code>p.log &lt;- ggplot(aes(y = log.var.od, x = log.mean.od), data = ocon.sum) + 
+    geom_point(size = 4, shape = 21, fill = &quot;grey&quot;) + 
+    stat_function(fun = function(x) coef(var.reg)[[1]] + coef(var.reg)[[2]] * x)
+
+p.abs &lt;- ggplot(aes(y = var.od, x = mean.od), data = ocon.sum) + 
+    geom_point(size = 4, shape = 21, fill = &quot;grey&quot;) + 
+    stat_function(fun = function(x) exp(coef(var.reg)[[1]])*x^coef(var.reg)[[2]])
+
+grid.arrange(p.log, p.abs, ncol = 2, 
+main = &quot;Variance regression shown on log (left) and absolute (right) scales&quot;)</code></pre>
+<p><img src="calib_tut3_variance_ocon_files/figure-html/ocon-var-reg-plot-1.png" title="" alt="" width="1248" /></p>
+<p>Although there seems to be a smooth trend for the RER, the relationship is not known exactly. This uncertainty may be expressed in terms of confidence intervals for the regression parameters (i.e. the slope and intercept) or confidence bands around the regression line:</p>
+<pre class="r"><code>confint(var.reg)</code></pre>
+<pre><code>##                 2.5 %    97.5 %
+## (Intercept) -5.910943 -2.570635
+## log.mean.od  1.905682  4.080964</code></pre>
+<pre class="r"><code>plotFit(var.reg, interval = &quot;confidence&quot;, pch = 21, bg = &quot;grey&quot;, shade = TRUE,
+        col.conf = blues[4], 
+        main = &quot;Variance regression with 95% confidence bands&quot;)</code></pre>
+<p><img src="calib_tut3_variance_ocon_files/figure-html/ocon-ci-var-reg-1.png" title="" alt="" width="672" /></p>
+<p>We’ll carry forward the point estimate for theta, 2.99, to curve-fitting, but keep in mind that there is considerable uncertainty in this estimate ranging from 1.9–4.1 (depending on the confidence level with which you are comfortable).</p>
+<p><strong>Variance components using ANOVA</strong></p>
+<p>The literature often recommends <a href="extra_glossary.html#ANOVA">ANOVA (ANalysis Of VAriance)</a> for estimating the RER. Given our simple data structure, ANOVA will not provide more information than the variance estimates calculated above, but we revisit ANOVA and <em>pooled</em> variance estimates in the <a href="calib_tut3_variance_elisa.html">R ELISA tutorial</a>.</p>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>In this tutorial, we characterised the variance in the response with respect to the magnitude of response—the RER—using calibrator group as a factor. We estimated the variance function with linear regression and a linearised power function, which is one of the major methods recommended in the literature <span class="citation">(e.g. Dudley et al. 1985, <span class="citation">Dunn and Wild (2013)</span>)</span>, although not in O’Connell <span class="citation">(1993)</span>. We carry forward the power parameter, theta = 2.99, to the <a href="calib_tut4_curve_ocon.html">O’Connell curve-fitting tutorial</a> keeping in mind that there is a lot of uncertainty in this estimate.</p>
+<br>
+<button type="button" class="btn">
+<a href="calib_tut4_curve_background.html"> Next: Curve-fitting background »</a>
+</button>
+<!--
+<button type="button" class="btn"><a href="elisa.html"> Tutorial: Data preparation for R's ELISA &raquo;</a></button>
+-->
+<p><br></p>
+<div class="references">
+<h2>References</h2>
+<p>Dudley, R A, P Edwards, R P Ekins, D J Finney, I G McKenzie, G M Raab, D Rodbard, and R P Rodgers. 1985. “Guidelines for immunoassay data processing.” <em>Clinical Chemistry</em> 31 (8): 1264–71. <a href="http://www.ncbi.nlm.nih.gov/pubmed/3893796" class="uri">http://www.ncbi.nlm.nih.gov/pubmed/3893796</a>.</p>
+<p>Dunn, John R, and David Wild. 2013. “Calibration Curve Fitting.” In <em>The Immunoassay Handbook</em>, 4th ed., 323–37. Elsevier. doi:<a href="http://dx.doi.org/10.1016/B978-0-08-097037-0.00013-0">10.1016/B978-0-08-097037-0.00013-0</a>.</p>
+<p>O’Connell, M.a., B.a. Belanger, and P.D. Haaland. 1993. “Calibration and assay development using the four-parameter logistic model.” <em>Chemometrics and Intelligent Laboratory Systems</em> 20 (2): 97–114. doi:<a href="http://dx.doi.org/10.1016/0169-7439(93)80008-6">10.1016/0169-7439(93)80008-6</a>.</p>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
