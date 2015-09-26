@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Tanya Murphy, Nandini Dendukuri, Dhananjaya Dendukuri" />
+
+
+<title>Statistical tools for the characterisation and validation of point-of-care tests (POCT)</title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/united.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 50px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h2 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+.section h3 {
+  padding-top: 55px;
+  margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.jumbotron {
+  background-image:url('bg_plot2.png');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: -115px;
+  margin-right: -115px;
+}
+
+.sidebar {
+  margin-left: -250px;
+}
+</style>
+
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="libs/highlight/default.css"
+      type="text/css" />
+<script src="libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<!-- My top navbar -->
+<div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<!-- not sure about this part. I think it's for mobile screens -->
+    <button type="button" class="navbar-toggle active" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="index.html"><strong>poct</strong>calibration.info</a>
+</div>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<div class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+    <li class="dropdown">
+        <a href="over" class="dropdown-toggle" data-toggle="dropdown">Overview<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="over_overview.html">About this project</a> </li>
+            <li><a href="over_intro.html">Introduction</a></li>
+            <li><a href="over_main_sources.html">Main literature sources</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="over_tutorials.html">Tutorials menu</a></li>
+            <li><a href="over_tut1_software.html">Software installation</a></li>
+        </ul>
+    </li>
+  <!-- Calibration -->
+    <li class="dropdown">
+        <a href="calib" class="dropdown-toggle" data-toggle="dropdown">Calibration<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="calib_calibration.html">About this section</a> </li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Tutorials</li>
+            <li><a href="calib_tut2_prep.html">Data Preparation</a></li>
+            <li><a href="calib_tut3_variance.html">Characterising Variance</a></li>
+            <li><a href="calib_tut4_curve.html">Curve-fitting</a></li>
+            <li><a href="calib_tut5_precision.html">Concentration estimation and precision profile</a></li>
+        </ul>
+    </li>
+  <!-- Extras -->
+    <li class="dropdown">
+        <a href="extra" class="dropdown-toggle" data-toggle="dropdown">Extras<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="extra_glossary.html">Glossary</a></li>
+            <li><a href="extra_links.html">Useful links</a></li>
+            <li><a href="extra_sitemap.html">Complete table of contents (sitemap)</a></li>
+        </ul>
+    </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="button">
+        <a href="mailto:poct.calibration@gmail.com">&#9993; poct.calibration@gmail.com</a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+
+<div id="header">
+<h1 class="title">Statistical tools for the characterisation and validation of point-of-care tests (POCT)</h1>
+<h4 class="author"><em>Tanya Murphy, Nandini Dendukuri, Dhananjaya Dendukuri</em></h4>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#the-special-case-of-poct">The special case of POCT</a></li>
+<li><a href="#need-for-statistical-methods-specific-for-poct">Need for statistical methods specific for POCT</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Biochemical or biomarker tests can facilitate treatment decisions while being less physically invasive than other procedures such as biopsy or radiography. <em>Point-of-care testing</em> (<strong>POCT</strong>) further reduces the burden of testing by making the test and test results easily accessible, either at the patient’s home or at a primary health care centre, thus shortening wait times for test results <span class="citation">(Yager, Domingo, and Gerdes 2008)</span>.</p>
+<p>Due to their molecular nature, biomarker-based tests present some challenges: Chemicals, hormones and antigens cannot be directly observed and are usually too small to be quantified by microscope. Well-established methods to indirectly observe such molecules, or <em>analytes</em>, include mass spectrometry, immunoassays and variants. This document will focus on non-isotopic assays (e.g. ELISA) with characteristics that may transfer well to POC applications.</p>
+<p>Some of the limitations of immunoassays, and especially some of the additional compromises associated with POCTs, may not be well understood by users of the tests. On the other hand, developers of the tests may not appreciate the potential ensuing clinical consequences of a poorly developed or characterised test. Therefore, there is a need to regulate the use of POCTs to encourage standardization and transparency in their development. Although the process of regulating diagnostic tests is not as rigorous as for pharmaceutical interventions, guidelines have been published by a number of major organisations such as the <a href="http://clsi.org/">Clinical and Laboratory Standards Institute (CLSI)</a> (also see the <a href="https://www.iso.org/obp/ui/#iso:std:iso:15198:ed-1:v1:en">International Organization for Standardization (ISO), Geneva</a>).</p>
+<p>CLSI guidelines recommend:</p>
+<ul>
+<li>Standardised reporting of test performance claims (for manufacturers);</li>
+<li>Protocols for test evaluation and use (for clinical laboratories and other test users).</li>
+</ul>
+<p>In turn, scientific articles comment and build upon the guidelines: The rapid evolution of diagnostic technologies requires that some fundamental methods be reintroduced, and other be adapted for newer applications. We are particularly interested in the <strong>statistical methods used to characterise POCT performance</strong>, including <strong>calibration curve-fitting and analytical validation</strong>, as part of pre-market test development.</p>
+</div>
+<div id="the-special-case-of-poct" class="section level1">
+<h1>The special case of POCT</h1>
+<p>Unlike lab-based tests, POCTs must be easy to use and feasible as a single-sample-at-a-time platform (also known as a <em>random access system</em>). Once a patient sample has been properly collected *, there are a number of steps to obtaining a concentration estimate. Table 1 compares the general steps for traditional lab-based tests running concurrent calibrators versus an ideal POCT system.</p>
+<p>* We will not cover proper sample collection in this document. <!-- See (ref) for details. --></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Traditional lab-based batch assays including calibrators</th>
+<th align="left">Quantitative POCT needing minimal user intervention</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">- Store sample appropriately until processing</td>
+<td align="left"><em>(Sample would have been introduced immediately into the device)</em></td>
+</tr>
+<tr class="even">
+<td align="left">- Process the collected sample</td>
+<td align="left"><em>(Processing happens automatically within the chip)</em></td>
+</tr>
+<tr class="odd">
+<td align="left">- Measure the generated response</td>
+<td align="left">- Measure the generated response</td>
+</tr>
+<tr class="even">
+<td align="left">- Estimate calibration curve from response and concurrent calibrators</td>
+<td align="left"><em>(Calibration curve model, previously determined by manufacturer, is stored in the response reader’s software)</em></td>
+</tr>
+<tr class="odd">
+<td align="left">- Patient sample concentration is estimated from response and calibration curve</td>
+<td align="left"><em>(Patient sample concentration is estimated from response and calibration curve by the built-in software—indistinguishable from the measurement step for the user)</em></td>
+</tr>
+<tr class="even">
+<td align="left">- Interpret the result based on estimate, margin of error and reference values</td>
+<td align="left">- Interpret the result based on estimate, margin of error and reference values</td>
+</tr>
+</tbody>
+</table>
+<p>In the final stages of test development, calibration curve-fitting is followed by assessment of test <em>performance</em>. The measurements from the new test, over time and across different labs or instruments, are compared (using standard samples) to estimate reliability. The estimated concentrations of patient samples are compared to an existing <em>reference</em> method to assess agreement. Some of the statistical characteristics of the test are summarized from those validation studies and reported to test users and regulators. Underlying those downstream summary metrics are many different statistical methods and several iterations data collection and reduction.</p>
+</div>
+<div id="need-for-statistical-methods-specific-for-poct" class="section level1">
+<h1>Need for statistical methods specific for POCT</h1>
+<p>A precursory review of the literature —textbooks and CLSI guidelines—and some anecdotal recent publications left us with the impression that there was a lack of detailed information on procedures for statistical characterization of POCTs, especially the development of master calibration curves.</p>
+<p>Statistical procedures used to estimate concentration from observed response have mainly evolved in the context of lab-based assays where control samples are usually included in parallel with the experimental samples. These are especially <em>plate-based</em> batch assays where physical space considerations figure prominently in study design. We found that there is very little guidance for POCT <em>developers</em> for curve-fitting.</p>
+<p>For test performance statistics, the CLSI guidelines are a good starting point, but are not specific enough for POCTs. Even the literature on making test performance claims for traditional assays is sparse for test developers; the onus seems to be on test users for whom there is plenty of guidance. Manufacturers of other random-access type biomarker testing technologies do not seem to publish detailed methods and results from test development so we cannot glean much from their experience based on published material alone. We believe that statistical methods for POCTs (and other random-access systems) deserve more attention. Hence in this <a href="http://www.grandchallenges.ca/grantee-stars/0002-02-02/">Grand Challenges Canada</a> funded project, we sought to review and complement the available, but overly general, recommendations for test characterization and validation by focusing on their application to POCTs.</p>
+<p>Our results are presented here as a series of brief narrative reviews and detailed tutorials.</p>
+<br>
+<button type="button" class="btn">
+<a href="over_main_sources.html"> Next: Main literature sources »</a>
+</button>
+<p><br></p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<!-- references will be automatically inserted here -->
+<div class="references">
+<p>Yager, Paul, Gonzalo J Domingo, and John Gerdes. 2008. “Point-of-care diagnostics for global health.” <em>Annual Review of Biomedical Engineering</em> 10 (January): 107—–1144. doi:<a href="http://dx.doi.org/10.1146/annurev.bioeng.10.061807.160524">10.1146/annurev.bioeng.10.061807.160524</a>.</p>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    // manage active menu header
+    if (href.startsWith('over_'))
+      $('a[href="' + 'over' + '"]').parent().addClass('active');
+    else if (href.startsWith('calib_'))
+      $('a[href="' + 'calib' + '"]').parent().addClass('active');
+    else if (href.startsWith('extra_'))
+      $('a[href="' + 'extra' + '"]').parent().addClass('active');
+});
+</script>
+  
+<script>
+var shiftWindow = function() { scrollBy(0, -60) };
+if (location.hash) shiftWindow();
+window.addEventListener("hashchange", shiftWindow);
+</script>
+ 
+<!--       footer       -->
+<div id="footer">
+    <div class="container">
+        <br class="clear" />
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div>
+                    <p class="text-muted" id="credit" align="left">
+                    Copyright &copy; Achira Labs <a href="#" target="_blank"> 
+                    Terms and conditions </a></p>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-8">
+                <div>
+                <p class="text-muted" id="credit">
+                    Web design based on templates and styles by 
+                    <a href="http://www.rstudio.com/ide/" target="_blank" title="RStudio">RStudio</a>, 
+                    <a href="http://johnmacfarlane.net/pandoc/" target="_blank" title="Pandoc">Pandoc</a>                     and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+                </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
