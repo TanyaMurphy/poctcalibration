@@ -12,7 +12,7 @@ bibliography: "../../Literature/library.bib"
   <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
   <li><a href="calib_tut4_curve_background.html">Background</a></li>
   <li><a href="calib_tut4_curve_ocon.html">O'Connell's ELISA</a></li>
-  <li><a href="calib_tut4_curve_elisa.html">R's ELISA{gtools}</a></li>
+<!--  <li><a href="calib_tut4_curve_elisa.html">R's ELISA{gtools}</a></li> -->
 </ul>
 <br>
 
@@ -33,18 +33,18 @@ source("AMgraph.R")
 # Our curve functions
 source("AMfunctions.R")
 # Data set tools
-require(reshape2)
-require(plyr)
-require(dplyr) 
+library(reshape2)
+library(plyr)
+library(dplyr) 
 # Special regression package
-require(minpack.lm)
+library(minpack.lm)
 
 data.path <- "../data" 
 
 options(width=90, scipen = 4, show.signif.stars = FALSE)
 ```
 
-Finally, we get into the core of calibration, the **curve-fitting** step, again using the O'Connell's ELISA data. This first example of curve-fitting and derivation of the inverse model is long because the steps in the analysis are explained in greater detail than in later examples. 
+Finally, we get to the core of calibration, the **curve-fitting** step, again using the O'Connell's ELISA data. This first example of curve-fitting and derivation of the inverse model is long because the steps in the analysis are explained in greater detail than in later examples. 
 
 <!---
 
@@ -109,7 +109,7 @@ par(mfrow = c(1, 1))
 
 ### Unweighted nonlinear regression in R
 
-Unlike linear regression, nonlinear regression models are fit using an iterative algorithm, which requires starting values for each unknown parameter. Based on the plot above and the [interpretation of the parameters of the 4PL function](background.html), we can visually estimate reasonable starting values. Given the simple structure of the O’Connell data and the strong relationship between concentration and response, starting values do not need to be very accurate.
+Unlike linear regression, nonlinear regression models are fit using an iterative algorithm, which requires starting values for each unknown parameter. Based on the plot above and the [interpretation of the parameters of the 4PL function](background.html), we can visually estimate reasonable starting values. Given the simple structure of the O'Connell data and the strong relationship between concentration and response, starting values do not need to be very accurate.
 
 The mean of the zero-calibrators, 0.1, is a good starting value for parameter $d$. The upper asymptote, $a$, looks like it's going off to a limit of about 1. The $b$ parameter is harder to imagine, but for an ascending curve, a negative number is needed; -1 will do. From the log(concentration) plot, $c$, the inflection point, looks like it may be around 8 so on the absolute scale that is `r round(exp(8), 0)`. 
 

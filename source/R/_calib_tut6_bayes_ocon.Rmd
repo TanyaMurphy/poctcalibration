@@ -20,9 +20,9 @@ source("AMgraph.R")
 # Our curve functions
 source("AMfunctions.R")
 # Interface to WinBUGS
-require(R2WinBUGS)
-require(lattice)
-require(car)
+library(R2jags)
+library(lattice)
+library(car)
 data.path <- "../data" 
 
 options(width=90, scipen = 4, show.signif.stars = FALSE)
@@ -33,7 +33,7 @@ orig.par <- par()
 ```
 
  
-In this tutorial, we will use Markov Chain Monte Carlo (MCMC) methods and Bayesian inference to estimate the variance model and the curve function parameters in one step. R will send the data and instructions to Bayesian software, WinBUGS, and then retreive the results for display using the R package, `R2WinBUGS`. If you have not already installed WinBUGS, the software download and instructions are found [here](http://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/). (Very similar implementations are possible with OpenBUGS or JAGS and their respective R packages.)
+In this tutorial, we will use Markov Chain Monte Carlo (MCMC) methods and Bayesian inference to estimate the variance model and the curve function parameters in one step. R will send the data and instructions to Bayesian software, WinBUGS, and then retreive the results for display using the R package, `R2jags`. If you have not already installed JAGS, the software download and instructions are found [here](https://sourceforge.net/projects/mcmc-jags/files/). (Very similar implementations are possible with WinBUGS and their respective R packages. However, a Stan implementation is planned.)
 
 ## Preparatory steps
 

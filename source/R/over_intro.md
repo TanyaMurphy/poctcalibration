@@ -1,10 +1,17 @@
+---
+title: "Main literature sources"
+
+bibliography: "../../Literature/library.bib"
+        
+---
+
 # Statistical Tools for the Characterisation and Validation of POC Tests
 
 *Authors: Tanya Murphy, Nandini Dendukuri, Dhananjaya Dendukuri*
 
 ## Introduction
 
-Biochemical or biomarker tests can facilitate treatment decisions while being less physically invasive than other procedures such as biopsy or radiography. *Point-of-care testing* (**POCT**) further reduces the burden of testing by making the test and test results easily accessible, either at the patient's home or at a primary health care centre, thus shortening wait times for test results [@Yager2008 [view](../../../Literature/Yager_2008.pdf)].
+Biochemical or biomarker tests can facilitate treatment decisions while being less physically invasive than other procedures such as biopsy or radiography. *Point-of-care testing* (**POCT**) further reduces the burden of testing by making the test and test results easily accessible, either at the patient's home or at a primary health care centre, thus shortening wait times for test results [@Yager2008].
 
 Due to their molecular nature, biomarker-based tests present some challenges: Chemicals, hormones and antigens cannot be directly observed and are usually too small to be quantified by microscope. Well-established methods to indirectly observe such molecules, or *analytes*, include mass spectrometry, immunoassays and variants. This document will focus on non-isotopic assays (e.g. ELISA) with characteristics that may transfer well to POC applications.
 

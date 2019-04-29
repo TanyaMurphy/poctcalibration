@@ -11,7 +11,6 @@ bibliography: "../../Literature/library.bib"
 <!-- Section tabs -->
 <ul class="nav nav-tabs" role="tablist">
   <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
-  <li><a href="calib_tut2_prep_background.html">Background</a></li>
   <li><a href="calib_tut2_prep_data_sets.html">Data sets</a></li>
   <li class="active"><a href="calib_tut2_prep_ocon.html">O'Connell's ELISA</a></li>
   <li><a href="calib_tut2_prep_elisa.html">R's ELISA{gtools}</a></li>
@@ -41,16 +40,16 @@ In each of the tutorials, we will set up the R environment (or workspace) needed
 ```{r prep-b}
 # Load the needed packages (in case not already done)
 # recent versions of Rstudio load knitr as needed
-# require(knitr)
+# library(knitr)
 
 # Plot formatting
 source("AMgraph.R")
 
 # Data set tools
-require(reshape2)
-require(plyr)
-require(dplyr) 
-require(grDevices)
+library(reshape2)
+library(plyr)
+library(dplyr) 
+library(grDevices)
 
 # When working interactively (i.e. not calling this file from another
 # function e.g. 'Knit' button or render() in outside script), set working
@@ -62,6 +61,7 @@ require(grDevices)
 # Set options: output width, when scientific notation is used (see options help),
 #              do not include statistical significance star indicators
 options(width=90, scipen = 4, show.signif.stars = FALSE)
+
 ```
 
 ## Data preparation

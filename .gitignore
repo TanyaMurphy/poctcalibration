@@ -214,3 +214,11 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+source/libs/
+
+source/R/_site/
+
+source/R/\.Rhistory
+
+*.Rproj

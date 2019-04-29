@@ -8,7 +8,7 @@ bibliography: "../../Literature/library.bib"
   <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
   <li><a href="calib_tut3_variance_background.html">Background</a></li>
   <li><a href="calib_tut3_variance_ocon.html">O'Connell's ELISA</a></li>
-  <li><a href="calib_tut3_variance_elisa.html">R's ELISA{gtools}</a></li>
+<!--  <li><a href="calib_tut3_variance_elisa.html">R's ELISA{gtools}</a></li> -->
 </ul>
 <br>
 
@@ -20,14 +20,14 @@ Before modeling the shape of the calibration curve, we will estimate the respons
 
 ```{r ocon-prep, include=FALSE}
 # Load the needed packages (in case not already done)
-# require(knitr)
+# library(knitr)
 
 # Data set tools
-require(reshape2)
-require(plyr)
-require(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
-require(nlme)
-require(investr)
+library(reshape2)
+library(plyr)
+library(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
+library(nlme)
+library(investr)
  
 # Plot formatting
 source("AMgraph.R")
@@ -102,14 +102,16 @@ Let's plot it:
 ```{r ocon-var-reg-plot, fig.width=13}
 p.log <- ggplot(aes(y = log.var.od, x = log.mean.od), data = ocon.sum) + 
     geom_point(size = 4, shape = 21, fill = "grey") + 
-    stat_function(fun = function(x) coef(var.reg)[[1]] + coef(var.reg)[[2]] * x)
+    stat_function(fun = function(x) coef(var.reg)[[1]] +
+                    coef(var.reg)[[2]] * x)
 
 p.abs <- ggplot(aes(y = var.od, x = mean.od), data = ocon.sum) + 
     geom_point(size = 4, shape = 21, fill = "grey") + 
-    stat_function(fun = function(x) exp(coef(var.reg)[[1]])*x^coef(var.reg)[[2]])
+    stat_function(fun = function(x)
+      exp(coef(var.reg)[[1]])*x^coef(var.reg)[[2]])
 
-grid.arrange(p.log, p.abs, ncol = 2, 
-main = "Variance regression shown on log (left) and absolute (right) scales")
+grid.arrange(p.log, p.abs, ncol = 2, top = "Variance regression shown on log (left) and absolute (right) scales")
+
 ```
 
 Although there seems to be a smooth trend for the RER, the relationship is not known exactly. This uncertainty may be expressed in terms of confidence intervals for the regression parameters (i.e. the slope and intercept) or confidence bands around the regression line:

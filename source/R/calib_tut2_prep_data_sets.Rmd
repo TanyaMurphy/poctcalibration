@@ -11,7 +11,6 @@ bibliography: "../../Literature/library.bib"
 <!-- Section tabs -->
 <ul class="nav nav-tabs" role="tablist">
   <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
-  <li><a href="calib_tut2_prep_background.html">Background</a></li>
   <li class="active"><a href="calib_tut2_prep_data_sets.html">Data sets</a></li>
   <li><a href="calib_tut2_prep_ocon.html">O'Connell's ELISA</a></li>
   <li><a href="calib_tut2_prep_elisa.html">R's ELISA{gtools}</a></li>
@@ -81,7 +80,7 @@ plot(ocon$conc2, ocon$od, log = "x", xaxt = 'n', pch = 21, bg = div.col[2],
 axis(1, at = c(1, 10, 100, 1000, 10000), 
      labels = format( c(1, 10, 100, 1000, 10000), big.mark=",", scientific=FALSE))
 grid()
-axis.break(1, 1, brw = 0.01)
+plotrix::axis.break(1, 1, brw = 0.01)
 plot(ocon$conc, ocon$od, pch = 21, bg = div.col[2], xaxt = 'n', 
      ylab = "Response", xlab = "Concentration")
 axis(1, at = c(0, 10000, 20000, 30000, 40000, 50000), 

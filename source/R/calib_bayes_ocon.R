@@ -1,5 +1,5 @@
-require(reshape2)
-require(R2WinBUGS)
+library(reshape2)
+library(R2jags)
 
 # options
 options(width = 75, show.signif.stars = FALSE, digits = 5, scipen = 7)
@@ -111,7 +111,7 @@ parameters <- c("a0", "bca", "bcb", "ps")
 
 # The list position of the parameter estimates (in a nested list of output)
 # as opposed to ex. fitted values, propensity scores). The list will be 
-# arranged alphabetically (but specifying correct position may require some
+# arranged alphabetically (but specifying correct position may library some
 # trial and error).
 ps.pars <- c(1, 2, 3, 4)
 outcome.pars <- 

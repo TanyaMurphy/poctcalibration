@@ -8,7 +8,7 @@ bibliography: "../../Literature/library.bib"
   <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
   <li><a href="calib_tut3_variance_background.html">Background</a></li>
   <li><a href="calib_tut3_variance_ocon.html">O'Connell's ELISA</a></li>
-  <li><a href="calib_tut3_variance_elisa.html">R's ELISA{gtools}</a></li>
+<!--   <li>R's gtools ELISA (TODO)</li> -->
 </ul>
 <br>
 
@@ -104,7 +104,7 @@ The Immunoassay Handbook [@Dunn2013] recommends regressing the log of the varian
 
         - Do you prefer to think about it in terms of variance or standard deviation?^[I find SD easier to picture]
 
-    4. Does your software/function make it easy to model the variance explicitly (e.g. BUGS) or does the syntax require providing a ‘weight’?
+    4. Does your software/function make it easy to model the variance explicitly (e.g. BUGS) or does the syntax require providing a 'weight'?
 
 * * * *
 

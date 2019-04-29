@@ -12,7 +12,7 @@ bibliography: "../../Literature/library.bib"
   <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
   <li><a href="calib_tut5_precision_background.html">Background</a></li>
   <li><a href="calib_tut5_precision_ocon.html">O'Connell's ELISA</a></li>
-  <li><a href="calib_tut5_precision_elisa.html">R's ELISA{gtools}</a></li>
+<!--  <li><a href="calib_tut5_precision_elisa.html">R's ELISA{gtools}</a></li> -->
 </ul>
 <br>
 

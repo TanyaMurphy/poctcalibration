@@ -3,7 +3,6 @@
 <!-- Section tabs -->
 <ul class="nav nav-tabs" role="tablist">
   <li><a href="../_calibration.html">&laquo; Back to calibration overview</a></li>
-  <li><a href="background.html">Background</a></li>
   <li><a href="data_sets.html">Data sets overview</a></li>
   <li><a href="ocon.html">O'Connell's ELISA</a></li>
   <li class="active"><a href="elisa.html">R's ELISA</a></li>
@@ -16,19 +15,20 @@ For brevity, we have not shown the package loading, etc. See the [O'Connell tab]
 
 ```{r prep-b, include=FALSE}
 # In case not already done, we load the needed packages
-# require(knitr)
+# library(knitr)
 # Plot formatting
-source("../../../../source/R/AMgraph.R")
+source("AMgraph.R")
 # If you don't like our ggplot options, reset default
 # theme_set(original.ggplot2.style)
 
 # Package containing the ELISA data set
-require(gtools)
+library(gtools)
 
 # Data set tools
-require(reshape2)
-require(plyr)
-require(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
+library(reshape2)
+library(plyr)
+library(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
+library(knitr)
 
 # When working interactively (i.e. not calling this file from another function e.g. 'Knit'
 # button or render() in outside script), set working directory to the location of this
@@ -37,7 +37,7 @@ require(dplyr) # may need updating (been a lot of changes in Wickam's 'grammar')
 # getwd()
 # setwd("./source/R/calibration/tut5_curve")
 # Some of these paths may seems redundant, but it's for the outside script reasons above
-data.path <- "../../../../source/data" 
+data.path <- "../data" 
 
 # Some options are set in export script, but may be reset
 # Set width for easy reading (but may sometimes want wider for viewing wide tables)
@@ -420,7 +420,7 @@ Scan the numerical summaries for unexpected values:
 
 - What about trends in SD? 
 
-    SD seems to increase with increasing concentration, which will require special attention. This pattern, a special case of 'heteroscedasticity', is a common feature of ELISA data.
+    SD seems to increase with increasing concentration, which will library special attention. This pattern, a special case of 'heteroscedasticity', is a common feature of ELISA data.
 
 No glaring errors. Some of the low values from the 2.05 calibrator will become negative values when the blank is subtracted. We will have to see whether or not it is the case within groups. We'll examine the structure in more detail in the next 2 tutorials. Negative mean `od` (by concentration) will cause problems anytime we need the log value or in observation weights for regression. 
 

@@ -4,5 +4,75 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "About"
-      href: about.html
+    - text: "About this project"
+      href: over_overview.html
+      menu:
+        - text: "Statistical methods for assays"
+          href: over_intro.html
+        - text: "Main literature sources"
+          href: over_main_sources.html
+    - text: "Tutorials"
+      menu: 
+        - text: "R tutorials"
+          href: over_tutorials.html
+        - text: "Software installation"
+          href: over_tut1_software.html
+        - text: "---------------------"
+        - text: "Calibration overview"
+          href: calib_overview.html
+        - text: "---------------------"
+        - text: "Data Preparation"
+        - text: "Data sets"
+          href: calib_tut2_prep_data_sets.html
+        - text: "O'Connell's ELISA data"
+          href: calib_tut2_prep_ocon.html
+        - text: "R's gtools ELISA data"
+          href: calib_tut2_prep_elisa.html
+        - text: "---------------------"
+        - text: "Characterising Variance"
+          href: calib_tut3_variance_background.html
+        - text: "O'Connell's ELISA data"
+          href: calib_tut3_variance_ocon.html
+        - text: "R's gtools ELISA data (TODO)"
+#         # TODO:  href: calib_tut3_variance_elisa.html
+        - text: "---------------------"
+        - text: "Curve-fitting"
+          href: calib_tut4_curve_background.html
+        - text: "O'Connell's ELISA data"
+          href: calib_tut4_curve_ocon.html
+        - text: "R's gtools ELISA data (TODO)"
+#         # TODO:  href: calib_tut4_curve_elisa.html
+        - text: "---------------------"
+        - text: "Concentration estimation and precision profile"
+          href: calib_tut5_precision_background.html
+        - text: "O'Connell's ELISA data"
+          href: calib_tut5_precision_background.html
+        - text: "R's gtools ELISA data (TODO)"
+#         # TODO: href: calib_tut4_curve_elisa.html
+#        - text: "---------------------"
+#        - text: "Bayesian methods - integrated"
+#          # TODO: href: calib_tut6_bayes_background.html 
+#        - text: "O'Connell's ELISA data"
+#          href: calib_tut6_bayes_ocon.html   ## DONE ##
+#        - text: "R's gtools ELISA data (TODO)"
+#         # TODO: href: calib_tut6_bayes_elisa.html
+#        - text: "---------------------"
+#        - # TODO? text: "Reliability"
+#        - text: "Overview"
+#          # TODO? reliab_overview.html
+#        - text: "---------------------"
+    - text: "Extras"
+      menu:
+        - text: "About the website"
+          href: about.html
+#        - text: "Glossary"
+#          href: extra_glossary.html 
+output:
+  html_document:
+    theme: united
+    #lib_dir: libs
+    include:
+      #before_body: before_body.html
+      after_body: after_body.html
+    
+    

@@ -12,7 +12,7 @@ bibliography: "../../Literature/library.bib"
   <li><a href="calib_overview.html">&laquo; Back to calibration overview</a></li>
   <li><a href="calib_tut5_precision_background.html">Background</a></li>
   <li><a href="calib_tut5_precision_ocon.html">O'Connell's ELISA</a></li>
-  <li><a href="calib_tut5_precision_elisa.html">R's ELISA{gtools}</a></li>
+<!--  <li><a href="calib_tut5_precision_elisa.html">R's ELISA{gtools}</a></li> -->
 </ul>
 <br>
 
@@ -26,12 +26,12 @@ source("AMgraph.R")
 # Our curve functions
 source("AMfunctions.R")
 # Data set tools
-require(reshape2)
-require(plyr)
-require(dplyr) 
+library(reshape2)
+library(plyr)
+library(dplyr) 
 
 # special regression packages
-require(minpack.lm)
+library(minpack.lm)
 
 # When working interactively (i.e. not calling this file from another
 # function e.g. 'Knit' button or render() in outside script), set working
@@ -101,7 +101,7 @@ Now we derive the precision profile as a descriptor of precision over the concen
 # more general arguments to use it for other assays)
 precisionProfile <- function(sdXhat.object
                              , acceptable.cv = 20){
-    require(ggplot2)
+    library(ggplot2)
     # sdXhat.object <- ocon.grid
     # Rename grid
     d <- unique(sdXhat.object$inv.grid)

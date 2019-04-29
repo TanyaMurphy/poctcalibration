@@ -4,6 +4,9 @@ title: "Calibration overview"
 
 Our goal in this section is to implement established methods and fit a robust calibration model that reliably returns sample concentration estimates under controlled conditions. At this time we will concentrate on *immunometric* tests; that is, tests with a positive relationship between concentration and response. Most of the same concepts apply to competitive assays, but the interpretation of some parameters changes with the inverse relationship.
 
+This tutorial will cover the basics of loading a data set and preparing it for analysis: variable creation, filtering, summarising and transposing into other formats. In these tutorials, we import existing immunoassay data---data sets from R packages aleady in tabular form or from the published literature. The tutorials also show how the data can be converted to a wide table that is nice for viewing or exporting to other software such as GraphPad.
+
+**Important: Do not reduce your raw data to sample means or exclude possible outliers for calibration analyses.**
 
 ## Methods 
 
@@ -21,7 +24,7 @@ Try the analyses described in this chapter with the preliminary measurements tha
 <!--
 <button type="button" class="btn"><a href="calibLit.html"> Next: Calibration literature review &raquo;</a></button>
 -->
-<button type="button" class="btn"><a href="calib_tut2_prep_background.html"> Tutorial: Data preparation &raquo;</a></button>
+<button type="button" class="btn"><a href="calib_tut2_prep_data_sets.html"> Data preparation tutorials &raquo;</a></button>
 <br>
 
 <!--
