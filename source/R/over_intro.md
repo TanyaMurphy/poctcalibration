@@ -1,5 +1,4 @@
 ---
-title: "Main literature sources"
 
 bibliography: "../../Literature/library.bib"
         
