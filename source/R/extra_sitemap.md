@@ -25,7 +25,7 @@
 - [Extras](extra_glossary.html)
     - [Glossary](extra_links.html)
     - [Useful links](extra_links.html)
-    - [Complete table of contents (aka site map)](sitemap.html)  
+    - [Complete table of contents (site map)](extra_sitemap.html)  
 
 <!--
     - [Pulling it all together](appendices/tut9_wrap.html)

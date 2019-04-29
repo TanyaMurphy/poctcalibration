@@ -26,14 +26,14 @@ All the tutorial steps work equally well with the native R editor (aka IDE) and 
 
 ### R packages
 
-Most data analysis functions ship with the basic installation, but we will need a few more packages for the upcoming tutorials. User-contributed R packages bundle related functions together. For example, 'nlme' and minpack.lm' add cutting-edge nonlinear regression techniques, whereas 'grid.extra', facilitate plot formatting that looks especially good for online viewing.  Other packages include data sets and data preparation functions.
+Most data analysis functions ship with the basic installation, but we will need a few more packages for the upcoming tutorials. User-contributed R packages bundle related functions together. For example, 'nlme' and 'minpack.lm' add cutting-edge nonlinear regression techniques, whereas 'grid.extra' facilitates creating panels of plots.  Other packages include data sets and data preparation functions.
 
 In the 'Console' (at the `>` prompt) enter the lines of code below to install all packages required for this tutorial.
 
 ```{.r}
-install.packages(c("dplyr", "drc", "ggplot2", "gridExtra", "gthemes",
+install.packages(c("dplyr", "drc", "ggplot2", "gridExtra", "ggthemes",
                     "investr", "knitr", "minpack.lm", "nCal", "nlme",
-                    "nlstools", "plotrix",  "plyr", "reshape2",
+                    "nlstools", "plotrix", "plyr", "reshape2",
                     "RColorBrewer"), 
                  repos = "http://cran.us.r-project.org", dependencies = T)                 
 ```

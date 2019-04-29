@@ -32,7 +32,7 @@ The subject of these tutorials is **statistical methods used to characterise a t
 
 6) Reliability (Precision) Studies - [Background](../reliability/tut6_reliabilty/background.html) - [Design Options (Simulations)](../reliability/tut6_reliabilty/design_simulations.html) - [Data Analysis](../reliability/tut6_reliabilty/analysis.html) 
 
-7) Special Considerations for POCT - [Master and stord curves](../reliability/tut7_scale/the_poct_case.html) - [Planning adjusters and software updates](../reliability/tut7_scale/adjusters.html)
+7) Special Considerations for POCT - [Master and stored curves](../reliability/tut7_scale/the_poct_case.html) - [Planning adjusters and software updates](../reliability/tut7_scale/adjusters.html)
 
 8) Agreement Studies - [Background](../agree/tut8_agree/background.html) - [Agreement Analysis (Bland-Altman)](../agree/tut8_agree/tut8_agree.html)
 
