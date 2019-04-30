@@ -1,12 +1,12 @@
 ---
-title: "POCTcalibration"
+title: POCTcalibration
 
 ---
 
-
 <!--  Main Content -->
 <!--  manually delete h1 title from html file after rendering -->
-<div class="jumbotron">
+<br>
+<div class="jumbotron" style="background-image: url('bg_plot2.png'); background-size: 100% 100%; background-repeat: no-repeat;">
 <h2><strong>Welcome</strong></h2>
 <p><strong>This website is the result of a collaboration between researchers from Achira Labs and McGill University Health Centre (MUHC) to review methods for the statistical characterisation and validation of quantitative point-of-care tests.</strong></p>
 <p><a href="over_overview.html" class="btn btn-primary btn-md" role="button">Get started &raquo;</a></p>
@@ -37,8 +37,9 @@ Read More &raquo;</a></p>
 </div>
 </div>
 <br>
-
+<!--
 <div class="alert alert-warning"><p>Many sections of this website are still in development and we welcome your <a href="mailto:poct.calibration@gmail.com">feedback</a>. Please check back often!</p>
 </div>
 <br>
+-->
 
